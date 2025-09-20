@@ -1,0 +1,407 @@
+/* CSS Custom Properties - Color Palette */
+:root {
+    /* Primary Colors */
+    --primary-green: #235B4E;    /* PANTONE 626 C */
+    --primary-red: #9F2241;      /* PANTONE 7420 C */
+    --primary-orange: #BC955C;   /* PANTONE 465 C */
+    
+    /* Secondary Colors */
+    --secondary-teal: #009268;   /* PANTONE 7473 C */
+    --secondary-beige: #DDC9A3;  /* PANTONE 468 C */
+    --secondary-gray: #98989A;   /* PANTONE 7 C */
+    --secondary-burgundy: #691C32; /* PANTONE 7421 C */
+    --secondary-dark-green: #10312B; /* PANTONE 627 C */
+    --secondary-light-gray: #6F7271; /* PANTONE 424 C */
+    
+    /* Additional colors for UI */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.2);
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-gray) 0%, var(--white) 100%);
+    min-height: 100vh;
+    color: var(--secondary-dark-green);
+    line-height: 1.6;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 4rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.main-title {
+    font-size: 3rem;
+    font-weight: 700; /* Changed from 300 to make it bold */
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--secondary-gray);
+    font-weight: 400;
+}
+
+/* Access Cards Container */
+.access-cards {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+}
+
+/* Card Styles */
+.card {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 25px var(--shadow);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+/* Card Content */
+.card-content {
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.card .icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.card .icon svg {
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.card h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.card p {
+    font-size: 1rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+/* Alumni Card Specific Styles */
+.alumni-card {
+    border: 2px solid var(--primary-green);
+}
+
+.alumni-card .icon svg {
+    color: var(--primary-green);
+}
+
+.alumni-card h2 {
+    color: var(--primary-green);
+}
+
+.alumni-card p {
+    color: var(--secondary-gray);
+}
+
+/* Company Card Specific Styles */
+.company-card {
+    border: 2px solid var(--primary-red);
+}
+
+.company-card .icon svg {
+    color: var(--primary-red);
+}
+
+.company-card h2 {
+    color: var(--primary-red);
+}
+
+.company-card p {
+    color: var(--secondary-gray);
+}
+
+/* Card Overlay */
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.alumni-card .card-overlay {
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
+}
+
+.company-card .card-overlay {
+    background: linear-gradient(135deg, var(--primary-red), var(--secondary-burgundy));
+}
+
+/* Hover Effects */
+.card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px var(--shadow-hover);
+}
+
+.card:hover .card-overlay {
+    opacity: 0.9;
+}
+
+.card:hover .card-content {
+    color: var(--white);
+    transform: translateY(-5px);
+}
+
+.card:hover .icon {
+    transform: scale(1.1) rotateY(180deg);
+}
+
+.card:hover .icon svg {
+    color: var(--white);
+}
+
+.card:hover h2,
+.card:hover p {
+    color: var(--white);
+}
+
+/* Active/Click Effect */
+.card:active {
+    transform: translateY(-8px) scale(0.98);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    text-align: center;
+    color: var(--secondary-gray);
+    font-size: 0.9rem;
+    animation: fadeIn 1s ease-out 0.4s both;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+
+/* Tablet Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    .main-title {
+        font-size: 2.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .access-cards {
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .card {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .card .icon {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .card h2 {
+        font-size: 1.6rem;
+    }
+    
+    .card p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    header {
+        margin-bottom: 3rem;
+    }
+    
+    .main-title {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .access-cards {
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .card {
+        width: 100%;
+        max-width: 300px;
+        height: 200px;
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .card .icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+    }
+    
+    .card h2 {
+        font-size: 1.4rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .card p {
+        font-size: 0.85rem;
+    }
+    
+    footer {
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 320px) {
+    .main-title {
+        font-size: 1.8rem;
+    }
+    
+    .card {
+        height: 180px;
+    }
+    
+    .card .icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .card h2 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .card {
+        transition: none;
+    }
+    
+    .card-content,
+    .card .icon,
+    .card-overlay {
+        transition: none;
+    }
+    
+    header,
+    .card,
+    footer {
+        animation: none;
+    }
+}
+
+/* Focus styles for accessibility */
+.card:focus {
+    outline: 3px solid var(--primary-orange);
+    outline-offset: 2px;
+}
+
+.card:focus:not(:focus-visible) {
+    outline: none;
+}

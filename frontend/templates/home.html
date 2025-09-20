@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Acceso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="main-title">Vinculación UNRC LCDN 801</h1>
+            <p class="subtitle">Selecciona tu perfil para continuar</p>
+        </header>
+        
+        <main class="access-cards">
+            <div class="card alumni-card" onclick="window.location.href='/alumnos'">
+                <div class="card-content">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 14L21 7L12 2L3 7L12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 12L12 19L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 17L12 24L21 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h2>Alumnos</h2>
+                    <p>Acceder a perfil de estudiante</p>
+                </div>
+                <div class="card-overlay"></div>
+            </div>
+            
+            <div class="card company-card" onclick="window.location.href='/empresas'">
+                <div class="card-content">
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 21H21V8L12 2L3 8V21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 21V12H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h2>Empresas</h2>
+                    <p>Portal de empresas y vacantes</p>
+                </div>
+                <div class="card-overlay"></div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 Vinculación UNRC LCDN 801. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+</body>
+</html>

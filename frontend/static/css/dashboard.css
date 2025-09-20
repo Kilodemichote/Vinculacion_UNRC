@@ -1,0 +1,434 @@
+/* CSS Custom Properties - Color Palette */
+:root {
+    /* Primary Colors */
+    --primary-green: #235B4E;    /* PANTONE 626 C */
+    --primary-red: #9F2241;      /* PANTONE 7420 C */
+    --primary-orange: #BC955C;   /* PANTONE 465 C */
+    
+    /* Secondary Colors */
+    --secondary-teal: #009268;   /* PANTONE 7473 C */
+    --secondary-beige: #DDC9A3;  /* PANTONE 468 C */
+    --secondary-gray: #98989A;   /* PANTONE 7 C */
+    --secondary-burgundy: #691C32; /* PANTONE 7421 C */
+    --secondary-dark-green: #10312B; /* PANTONE 627 C */
+    --secondary-light-gray: #6F7271; /* PANTONE 424 C */
+    
+    /* Additional colors for UI */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+    --success: #28a745;
+    --info: #17a2b8;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-gray) 0%, var(--white) 100%);
+    min-height: 100vh;
+    color: var(--secondary-dark-green);
+    line-height: 1.6;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
+    color: var(--white);
+    padding: 2rem 0;
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--white);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--white);
+}
+
+.logout-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Main Content */
+.dashboard-main {
+    flex: 1;
+    padding: 3rem 0;
+}
+
+.dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 2rem;
+}
+
+.flash-message {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.flash-success {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.flash-info {
+    background: rgba(23, 162, 184, 0.1);
+    color: var(--info);
+    border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+/* Welcome Card */
+.welcome-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 25px var(--shadow);
+    margin-bottom: 3rem;
+    border: 1px solid rgba(35, 91, 78, 0.1);
+}
+
+.welcome-card h2 {
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.welcome-card > p {
+    color: var(--secondary-gray);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.user-info {
+    background: rgba(35, 91, 78, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(35, 91, 78, 0.1);
+}
+
+.user-info p {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.user-info p:last-child {
+    margin-bottom: 0;
+}
+
+.user-info strong {
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px var(--shadow);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(35, 91, 78, 0.1);
+    text-align: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px var(--shadow-hover);
+    border-color: var(--primary-green);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+.feature-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--white);
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    color: var(--primary-green);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.feature-card p {
+    color: var(--secondary-gray);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+
+/* Tablet Styles */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .dashboard-main {
+        padding: 2rem 0;
+    }
+    
+    .dashboard-content {
+        padding: 0 1.5rem;
+    }
+    
+    .welcome-card {
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 480px) {
+    .header-content {
+        padding: 0 1rem;
+    }
+    
+    .dashboard-header {
+        padding: 1.5rem 0;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .logout-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-content {
+        padding: 0 1rem;
+    }
+    
+    .welcome-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.3rem;
+    }
+    
+    .welcome-card > p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .user-info {
+        padding: 1.25rem;
+    }
+    
+    .user-info p {
+        font-size: 0.9rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 1.25rem;
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 320px) {
+    .dashboard-header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .logout-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .logout-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .welcome-card {
+        padding: 1.25rem;
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.2rem;
+    }
+    
+    .feature-card {
+        padding: 1rem;
+    }
+    
+    .feature-icon {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .feature-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .feature-card,
+    .feature-icon,
+    .logout-btn {
+        transition: none;
+    }
+    
+    .feature-card:hover {
+        transform: none;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: none;
+    }
+}
+
+/* Focus styles for accessibility */
+.logout-btn:focus,
+.feature-card:focus {
+    outline: 3px solid var(--primary-orange);
+    outline-offset: 2px;
+}
+
+.logout-btn:focus:not(:focus-visible),
+.feature-card:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .welcome-card,
+    .feature-card {
+        border-width: 2px;
+    }
+    
+    .logout-btn {
+        border-width: 3px;
+    }
+}
