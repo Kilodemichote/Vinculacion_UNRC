@@ -14,7 +14,7 @@
         </header>
         
         <main class="access-cards">
-            <div class="card alumni-card" onclick="window.location.href='/alumnos'">
+            <div class="card alumni-card" onclick="window.location.href='{{ url_for('alumnos') }}'">
                 <div class="card-content">
                     <div class="icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +29,7 @@
                 <div class="card-overlay"></div>
             </div>
             
-            <div class="card company-card" onclick="window.location.href='/empresas'">
+            <div class="card company-card" onclick="window.location.href='{{ url_for('empresas') }}'">
                 <div class="card-content">
                     <div class="icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
