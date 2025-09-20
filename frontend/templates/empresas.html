@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Empresas - En Construcción</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <style>
+        .construction-wrapper {
+            text-align: center;
+        }
+        .construction-icon {
+            width: 80px;
+            height: 80px;
+            color: var(--primary-orange);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-wrapper construction-wrapper">
+            <div class="auth-header">
+                <div class="construction-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg>
+                </div>
+                <h1>En Construcción</h1>
+                <p>El portal para empresas se encuentra actualmente en desarrollo.</p>
+                <p>¡Vuelve pronto para ver las novedades!</p>
+            </div>
+            <a href="{{ url_for('home') }}" class="auth-link">
+                <strong>Volver al inicio</strong>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+
