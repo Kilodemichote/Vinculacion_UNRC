@@ -23,6 +23,7 @@ def index():
 def home():
     return render_template('home.html')
 
+
 @app.route('/alumnos')
 def alumnos():
     # Redirect to login if not authenticated
@@ -128,6 +129,16 @@ def logout():
 def empresas():
     # Route for companies access
     return render_template('empresas.html')
+
+@app.route('/manuel')
+def manuel():
+    # Route for Manuel's page
+    return render_template('manuel.html')
+
+@app.route('/rafa')
+def rafa():
+    # Route for Manuel's page
+    return render_template('rafa.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
