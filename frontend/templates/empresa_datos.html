@@ -4,11 +4,357 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datos de Empresa</title>
+    <!-- Using the same stylesheet as the company dashboard for consistency -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empresa_dashboard.css') }}">
+    <style>
+        /* Add padding to body to account for fixed navbar */
+        body {
+            padding-top: 60px;
+        }
+
+        /* Estilos adicionales para la página de datos de empresa */
+        .welcome-card {
+            /* Limita el ancho del contenedor del formulario para evitar que se estire demasiado en pantallas grandes */
+            max-width: 900px;
+            margin: 0 auto; /* Centra la tarjeta */
+        }
+
+        .form-grid {
+            display: grid;
+            /* Cambiado a 2 columnas en pantallas más grandes, y se ajustará a 1 en móviles */
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            align-items: start; /* Alinea los elementos al inicio */
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-red, #9F2241);
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-red, #9F2241);
+            box-shadow: 0 0 0 3px rgba(159, 34, 65, 0.2);
+        }
+
+        .form-group input:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-red, #9F2241), var(--secondary-burgundy, #691C32));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(159, 34, 65, 0.3);
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .flash-error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+        }
+
+        .flash-success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+        }
+
+        .flash-info {
+            background: #eef;
+            border: 1px solid #ccf;
+            color: #33c;
+        }
+
+        /* Media Query para responsividad en dispositivos móviles */
+        @media (max-width: 768px) {
+            .form-grid {
+                /* Cambia a una sola columna en pantallas más pequeñas */
+                grid-template-columns: 1fr;
+            }
+
+            .api-key-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .api-key-input-wrapper {
+                margin-bottom: 0.5rem;
+            }
+
+            .copy-btn {
+                width: 100%;
+            }
+        }
+
+        /* API Key Section Styles */
+        .api-key-section {
+            background: #f0f8ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .api-key-section h3 {
+            margin-top: 0;
+            color: #2c5aa0;
+        }
+
+        .api-key-section .form-group label {
+            color: #2c5aa0;
+        }
+
+        .api-key-container {
+            display: flex;
+            gap: 0.75rem; /* Moderate gap for close but not overlapping */
+            align-items: center; /* Center align items vertically */
+            flex-wrap: nowrap; /* Prevent wrapping on desktop */
+        }
+
+        .api-key-input-wrapper {
+            position: relative;
+            flex: 0 0 auto; /* Don't grow or shrink */
+            width: 400px; /* Fixed width for consistency */
+        }
+
+        #api_key {
+            width: 100%;
+            background-color: #fff;
+            font-family: monospace;
+            font-weight: bold;
+            border-radius: 8px;
+            /* Inherit styles from .form-group input and add specific ones */
+            padding: 0.75rem 3rem 0.75rem 0.75rem; /* More space on the right for the eye icon */
+            border: 1px solid #ccc;
+            box-sizing: border-box; /* Ensure padding is included in width */
+        }
+
+        .api-key-toggle-btn {
+            position: absolute;
+            right: 0.5rem; /* Inside the input field on the right */
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1; /* Ensure button stays on top */
+        }
+
+        .copy-btn {
+            padding: 0.75rem 1.5rem;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            flex-shrink: 0; /* Prevent the button from shrinking */
+            align-self: center; /* Center vertically */
+            height: fit-content; /* Match input height */
+        }
+
+        .api-key-section p {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .api-key-container {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenido, {{ session.user_name }}</h1>
-    <p>Email: {{ session.user_email }}</p>
-    <p>Tu cuenta ha sido registrada exitosamente.</p>
-    <a href="{{ url_for('empresas') }}">Ir al Dashboard</a>
+    <nav class="main-nav">
+        <div class="nav-content">
+            <a href="{{ url_for('empresa_dashboard') }}" class="nav-brand">Portal de Empresas</a>
+            <div class="nav-links">
+                <a href="{{ url_for('empresa_dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="nav-link">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <main>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="welcome-card">
+                <h2>Datos de la Empresa</h2>
+                {% if empresa.is_new %}
+                    <p><strong>¡Bienvenido!</strong> Por favor completa la información de tu empresa.</p>
+                {% else %}
+                    <p>Completa o actualiza la información de tu empresa. Los campos con datos existentes no se pueden editar.</p>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="form-grid">
+                        {% set fields = [
+                            ('nombre', 'Nombre empresa', empresa.nombre),
+                            ('contactoPrincipal', 'Contacto Principal', empresa.contacto_principal),
+                            ('correo', 'Correo', empresa.correo),
+                            ('giro', 'Giro', empresa.giro),
+                            ('estado', 'Estado', empresa.estado),
+                            ('mun_alcaldia', 'Municipio / alcaldía', empresa.municipio)
+                        ] %}
+
+                        {% for name, label, value in fields %}
+                        <div class="form-group">
+                            <label for="{{ name }}">{{ label }}</label>
+                            <input
+                                type="text"
+                                id="{{ name }}"
+                                name="{{ name }}"
+                                value="{{ value or '' }}"
+                                {% if value %}disabled{% endif %}
+                                {% if name == 'correo' %}disabled{% endif %}
+                            >
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Guardar Cambios</button>
+                    </div>
+                </form>
+
+                <!-- API KEY Section (only shown if subscription is active) -->
+                {% if empresa.suscripcion_activa %}
+                    <div class="api-key-section">
+                        <h3>🔑 API KEY</h3>
+                        <div class="form-group">
+                            <label for="api_key">Tu API Key (Suscripción Activa)</label>
+                            <div class="api-key-container">
+                                <div class="api-key-input-wrapper">
+                                    <input
+                                        type="password"
+                                        id="api_key"
+                                        value="{{ empresa.doc_id }}"
+                                        readonly
+                                    >
+                                    <button
+                                        type="button"
+                                        onclick="toggleApiKeyVisibility()"
+                                        class="api-key-toggle-btn"
+                                        title="Mostrar/Ocultar API Key"
+                                    >
+                                        <svg id="eye_icon" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="copyApiKey(this)" class="copy-btn">
+                                    Copiar
+                                </button>
+                            </div>
+                            <p>Usa esta API Key para acceder a los servicios de la plataforma.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function copyApiKey(button) {
+            const apiKeyInput = document.getElementById('api_key');
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(apiKeyInput.value).then(function() {
+                // Change button text temporarily
+                const originalText = button.textContent;
+                button.textContent = '✓ Copiado!';
+                button.style.background = '#28a745';
+
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#4a90e2';
+                }, 2000);
+            }).catch(function(err) {
+                alert('Error al copiar: ' + err);
+            });
+        }
+
+        function toggleApiKeyVisibility() {
+            const apiKeyInput = document.getElementById('api_key');
+            const eyeIcon = document.getElementById('eye_icon');
+
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                `;
+            } else {
+                apiKeyInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>

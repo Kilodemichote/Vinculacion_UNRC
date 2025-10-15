@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Vacantes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empresa_dashboard.css') }}">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-content">
+            <a href="{{ url_for('empresa_dashboard') }}" class="nav-brand">Portal de Empresas</a>
+            <div class="nav-links">
+                <a href="{{ url_for('empresa_datos') }}" class="nav-link">Mis Datos</a>
+                <a href="{{ url_for('logout') }}" class="nav-link">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>Dashboard de Vacantes</h1>
+            <div class="header-actions">
+                <a href="#" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Vacante
+                </a>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ vacantes|length }}</h3>
+                    <p>Vacante{% if vacantes|length != 1 %}s{% endif %} Publicada{% if vacantes|length != 1 %}s{% endif %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vacantes List -->
+        {% if vacantes %}
+            <div class="vacantes-container">
+                {% for vacante in vacantes %}
+                    <article class="vacante-card">
+                        <h3 class="vacante-title">{{ vacante.titulo }}</h3>
+
+                        <!-- Meta Information -->
+                        <div class="vacante-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Modalidad</span>
+                                <span class="meta-value">{{ vacante.modalidad or 'No especificado' }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Tipo de Contrato</span>
+                                <span class="meta-value">{{ vacante.tipoContrato or 'No especificado' }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Duración</span>
+                                <span class="meta-value">{{ vacante.duracion or 'No especificado' }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Horario</span>
+                                <span class="meta-value">{{ vacante.horario or 'No especificado' }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Sueldo</span>
+                                <span class="meta-value">
+                                    {% if vacante.sueldo %}
+                                        ${{ "{:,.2f}".format(vacante.sueldo) }}
+                                    {% else %}
+                                        No especificado
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Educación</span>
+                                <span class="meta-value">{{ vacante.educación or 'No especificado' }}</span>
+                            </div>
+                            {% if vacante.experienciaRequerida %}
+                                <div class="meta-item">
+                                    <span class="meta-label">Experiencia</span>
+                                    <span class="meta-value">{{ vacante.experienciaRequerida }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        {% if vacante.descripcion %}
+                            <div class="vacante-section">
+                                <h4>Descripción</h4>
+                                <div class="vacante-description">{{ vacante.descripcion }}</div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Requirements -->
+                        {% if vacante.requisitos %}
+                            <div class="vacante-section">
+                                <h4>Requisitos</h4>
+                                <div class="vacante-description">{{ vacante.requisitos }}</div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Tags -->
+                        {% if vacante.habilidadesDuras or vacante.idiomas %}
+                            <div class="vacante-section">
+                                <h4>Habilidades e Idiomas</h4>
+                                <div class="tags-container">
+                                    {% if vacante.habilidadesDuras %}
+                                        {% for habilidad in vacante.habilidadesDuras %}
+                                            <span class="tag habilidad">💎 {{ habilidad }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if vacante.idiomas %}
+                                        {% for idioma in vacante.idiomas %}
+                                            <span class="tag idioma">🌐 {{ idioma }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                </div>
+                <h3>No hay vacantes publicadas</h3>
+                <p>Aún no has publicado ninguna oportunidad laboral.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

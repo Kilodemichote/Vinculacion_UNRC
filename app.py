@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from firebase import initialize_firebase, verify_google_id_token, upsert_empresa_email
+from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
 
@@ -129,7 +129,8 @@ def empresas():
     # Redirect to login if not authenticated as a company
     if 'user_role' not in session or session['user_role'] != 'empresa':
         return redirect(url_for('empresas_login'))
-    return render_template('empresa_datos.html') # A new dashboard for companies
+    # Redirect to empresa_datos which handles all the logic
+    return redirect(url_for('empresa_datos'))
 
 @app.route('/empresas/login', methods=['GET', 'POST'])
 def empresas_login():
@@ -180,12 +181,98 @@ def empresas_google_login():
 def empresa_datos():
     if 'user_email' not in session:
         return redirect(url_for('empresas_login'))
-    
-    # Upsert email to Firestore
-    upsert_empresa_email(session['user_email'])
-    
-    # Render a form or dashboard (create this template)
-    return render_template('empresa_datos.html')
+
+    correo = session['user_email']
+
+    # Handle POST request (form submission to update data)
+    if request.method == 'POST':
+        # Get the empresa document ID from session
+        doc_id = session.get('empresa_doc_id')
+
+        if not doc_id:
+            flash('Error: No se encontró el documento de la empresa.', 'error')
+            return redirect(url_for('empresa_datos'))
+
+        # Collect form data (only update non-None values)
+        update_data = {}
+
+        fields = ['nombre', 'contactoPrincipal', 'estado', 'giro', 'mun_alcaldia']
+        for field in fields:
+            value = request.form.get(field, '').strip()
+            if value:  # Only include non-empty values
+                update_data[field] = value
+
+        if update_data:
+            # Update the empresa document
+            if update_empresa(doc_id, update_data):
+                flash('Datos de la empresa actualizados exitosamente.', 'success')
+                # Refresh the page to show updated data
+                return redirect(url_for('empresa_datos'))
+            else:
+                flash('Error al actualizar los datos. Inténtalo de nuevo.', 'error')
+        else:
+            flash('No se proporcionaron datos para actualizar.', 'info')
+
+    # GET request: Check if empresa exists in Firestore
+    empresa = get_empresa_by_correo(correo)
+
+    if empresa:
+        # Empresa exists, store doc_id in session
+        session['empresa_doc_id'] = empresa['doc_id']
+        is_new_empresa = False
+    else:
+        # Empresa doesn't exist, create new document
+        doc_id = create_empresa(correo)
+        if doc_id:
+            session['empresa_doc_id'] = doc_id
+            # Fetch the newly created empresa
+            empresa = get_empresa_by_correo(correo)
+            is_new_empresa = True
+            flash('Bienvenido! Por favor completa los datos de tu empresa.', 'info')
+        else:
+            flash('Error al crear el registro de la empresa.', 'error')
+            return redirect(url_for('empresas_login'))
+
+    # Prepare data for template
+    empresa_data = {
+        "nombre": empresa.get('nombre'),
+        "contacto_principal": empresa.get('contactoPrincipal'),
+        "correo": empresa.get('correo'),
+        "giro": empresa.get('giro'),
+        "estado": empresa.get('estado'),
+        "municipio": empresa.get('mun_alcaldia'),
+        "suscripcion_activa": empresa.get('suscripcionActiva', False),
+        "is_new": is_new_empresa,
+        "doc_id": empresa.get('doc_id')  # Include doc_id for API KEY display
+    }
+
+    return render_template('empresa_datos.html', empresa=empresa_data)
+
+@app.route('/empresa/dashboard')
+def empresa_dashboard():
+    # Check if user is authenticated as empresa
+    if 'user_email' not in session or session.get('user_role') != 'empresa':
+        return redirect(url_for('empresas_login'))
+
+    # Get empresa document ID from session
+    doc_id = session.get('empresa_doc_id')
+
+    if not doc_id:
+        # If doc_id is not in session, fetch it from Firestore
+        correo = session['user_email']
+        empresa = get_empresa_by_correo(correo)
+
+        if empresa:
+            doc_id = empresa['doc_id']
+            session['empresa_doc_id'] = doc_id
+        else:
+            flash('Error: No se encontró la empresa. Por favor completa tus datos primero.', 'error')
+            return redirect(url_for('empresa_datos'))
+
+    # Get all vacantes for this empresa
+    vacantes = get_vacantes_by_empresa_id(doc_id)
+
+    return render_template('empresa_dashboard.html', vacantes=vacantes)
 
 if __name__ == '__main__':
     app.run(debug=True)

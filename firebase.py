@@ -23,25 +23,108 @@ def initialize_firebase():
     except Exception as e:
         print(f"Error initializing Firebase Admin SDK: {e}")
 
-def upsert_empresa_email(email):
+def get_empresa_by_correo(correo):
     """
-    Upsert empresa email to Firestore empresas collection
+    Retrieves empresa document by correo (email).
+    Returns the document data if found, otherwise None.
     """
     try:
         db = firestore.client()
         empresas_ref = db.collection('empresas')
-        
-        # Use email as document ID (sanitized)
-        doc_id = email.replace('.', '_').replace('@', '_at_')
-        
-        empresas_ref.document(doc_id).set({
-            'email': email,
-            'updated_at': firestore.SERVER_TIMESTAMP
-        }, merge=True)
-        
-        print(f"Empresa email upserted: {email}")
+
+        # Query by correo field
+        query = empresas_ref.where('correo', '==', correo).limit(1)
+        docs = query.stream()
+
+        for doc in docs:
+            data = doc.to_dict()
+            data['doc_id'] = doc.id  # Include document ID for updates
+            return data
+
+        return None
     except Exception as e:
-        print(f"Error upserting empresa email: {e}")
+        print(f"Error retrieving empresa by correo: {e}")
+        return None
+
+def create_empresa(correo):
+    """
+    Creates a new empresa document with just the correo field.
+    Uses automatic document ID assignment.
+    Returns the document ID if successful, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        empresas_ref = db.collection('empresas')
+
+        # Create new document with auto-generated ID
+        doc_ref = empresas_ref.document()
+        doc_ref.set({
+            'correo': correo,
+            'contactoPrincipal': None,
+            'estado': None,
+            'giro': None,
+            'mun_alcaldia': None,
+            'nombre': None,
+            'suscripcionActiva': False,
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'updated_at': firestore.SERVER_TIMESTAMP
+        })
+
+        print(f"New empresa created with correo: {correo}, doc_id: {doc_ref.id}")
+        return doc_ref.id
+    except Exception as e:
+        print(f"Error creating empresa: {e}")
+        return None
+
+def update_empresa(doc_id, data):
+    """
+    Updates an existing empresa document.
+    data should be a dict with the fields to update.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        db = firestore.client()
+        empresas_ref = db.collection('empresas')
+
+        # Add timestamp to the update
+        data['updated_at'] = firestore.SERVER_TIMESTAMP
+
+        # Update the document
+        empresas_ref.document(doc_id).update(data)
+
+        print(f"Empresa document {doc_id} updated successfully")
+        return True
+    except Exception as e:
+        print(f"Error updating empresa: {e}")
+        return False
+
+def get_vacantes_by_empresa_id(empresa_doc_id):
+    """
+    Retrieves all vacantes (job opportunities) for a specific empresa.
+    Returns a list of vacante documents.
+    """
+    try:
+        db = firestore.client()
+        vacantes_ref = db.collection('vacantes')
+        empresas_ref = db.collection('empresas')
+
+        # Create a reference to the empresa document
+        empresa_ref = empresas_ref.document(empresa_doc_id)
+
+        # Query vacantes where empresaId equals the empresa reference
+        query = vacantes_ref.where('empresaId', '==', empresa_ref)
+        docs = query.stream()
+
+        vacantes = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id  # Include document ID
+            vacantes.append(data)
+
+        return vacantes
+    except Exception as e:
+        print(f"Error retrieving vacantes by empresa ID: {e}")
+        return []
 
 def verify_google_id_token(id_token):
     """

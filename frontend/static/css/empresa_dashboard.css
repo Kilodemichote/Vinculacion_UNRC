@@ -1,0 +1,412 @@
+/* CSS Custom Properties - Color Palette */
+:root {
+    --primary-red: #9F2241;
+    --secondary-burgundy: #691C32;
+    --primary-orange: #BC955C;
+    --white: #FFFFFF;
+    --light-gray: #f8f9fa;
+    --medium-gray: #e9ecef;
+    --dark-gray: #6c757d;
+    --text-color: #343a40;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --shadow-hover: rgba(0, 0, 0, 0.12);
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Base Styles */
+body {
+    background-color: var(--light-gray);
+    min-height: 100vh;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding-top: 60px; /* Make space for the fixed nav bar */
+}
+
+/* New Main Navigation */
+.main-nav {
+    background: linear-gradient(135deg, var(--primary-red), var(--secondary-burgundy));
+    padding: 0 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1000;
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-brand {
+    color: var(--white);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--white);
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* Header */
+.dashboard-header {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: none;
+    box-shadow: none;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    color: var(--primary-red);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-red), var(--secondary-burgundy));
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(159, 34, 65, 0.3);
+}
+
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary-red);
+    border: 2px solid var(--medium-gray);
+}
+
+.btn-secondary:hover {
+    background: var(--light-gray);
+    border-color: var(--primary-red);
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 2rem;
+}
+
+.flash-message {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideIn 0.3s ease-out;
+    border-left: 4px solid;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.flash-error { border-color: #d32f2f; color: #c62828; background-color: #ffebee; }
+.flash-success { border-color: #388e3c; color: #2e7d32; background-color: #e8f5e9; }
+.flash-info { border-color: #1976d2; color: #1565c0; background-color: #e3f2fd; }
+
+/* Stats Section */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--medium-gray);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(159, 34, 65, 0.1), rgba(105, 28, 50, 0.05));
+    color: var(--primary-red);
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 2.25rem;
+    color: var(--primary-red);
+    font-weight: 700;
+}
+
+.stat-content p {
+    margin: 0.25rem 0 0;
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+}
+
+/* Vacantes Section */
+.vacantes-container {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 0.25rem 1.5rem; /* Add padding for scrollbar and shadow */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--medium-gray) var(--light-gray);
+}
+
+/* Scrollbar styling for Webkit browsers */
+.vacantes-container::-webkit-scrollbar {
+    height: 8px;
+}
+.vacantes-container::-webkit-scrollbar-track {
+    background: var(--light-gray);
+    border-radius: 4px;
+}
+.vacantes-container::-webkit-scrollbar-thumb {
+    background-color: var(--medium-gray);
+    border-radius: 4px;
+}
+
+.vacante-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 15px var(--shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--medium-gray);
+    flex: 0 0 320px; /* Fixed width for carousel items */
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+}
+
+.vacante-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--shadow-hover);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.vacante-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-red);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.vacante-meta-item {
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.vacante-description {
+    font-size: 0.9rem;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+    flex-grow: 1; /* Allows description to fill space */
+}
+
+.vacante-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: 1px solid var(--medium-gray);
+    border-top: 1px solid var(--medium-gray);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 0.7rem;
+    color: var(--dark-gray);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.meta-value {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.vacante-tags-section {
+    margin-top: auto; /* Pushes tags to the bottom */
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.tag {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tag.habilidad {
+    background: rgba(159, 34, 65, 0.1);
+    color: var(--primary-red);
+}
+
+.tag.idioma {
+    background: rgba(108, 117, 125, 0.1);
+    color: var(--dark-gray);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px var(--shadow);
+    border: 1px solid var(--medium-gray);
+}
+
+.empty-state-icon {
+    margin-bottom: 1.5rem;
+    color: var(--primary-red);
+    opacity: 0.6;
+}
+
+.empty-state h3 {
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+}
+
+.empty-state p {
+    color: var(--dark-gray);
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding-top: 50px;
+    }
+    .main-nav {
+        height: 50px;
+        padding: 0 1rem;
+    }
+    .nav-brand {
+        font-size: 1.1rem;
+    }
+    .nav-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    .dashboard-header {
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+    .vacante-card {
+        flex: 0 0 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .dashboard-header {
+        padding: 1.25rem;
+    }
+
+    .vacante-card {
+        padding: 1.25rem;
+    }
+}
