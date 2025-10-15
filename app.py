@@ -1,19 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from backend.auth import (
-    validate_login_form, 
-    validate_register_form,
-    authenticate_user_firebase,
-    create_user_firebase,
-    send_password_reset_email,
-    auth_manager,
-    login_required
-)
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+from firebase import initialize_firebase, verify_google_id_token
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
 
+# Initialize Firebase Admin SDK
+initialize_firebase()
+
 # Secret key for session management - change this in production
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 @app.route('/')
 def index():
@@ -115,7 +115,6 @@ def alumnos_forgot_password():
     return render_template('alumnos_forgot_password.html')
 
 @app.route('/alumnos/dashboard')
-@login_required
 def alumnos_dashboard():
     return render_template('alumnos_dashboard.html')
 
@@ -127,18 +126,67 @@ def logout():
 
 @app.route('/empresas')
 def empresas():
-    # Route for companies access
-    return render_template('empresas.html')
+    # Redirect to login if not authenticated as a company
+    if 'user_role' not in session or session['user_role'] != 'empresa':
+        return redirect(url_for('empresas_login'))
+    return render_template('empresa_datos.html') # A new dashboard for companies
 
-@app.route('/manuel')
-def manuel():
-    # Route for Manuel's page
-    return render_template('manuel.html')
+@app.route('/empresas/login', methods=['GET', 'POST'])
+def empresas_login():
+    # Prepare Firebase config for the client-side
+    firebase_config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
+    }
 
-@app.route('/rafa')
-def rafa():
-    # Route for Manuel's page
-    return render_template('rafa.html')
+    if request.method == 'POST':
+        email = request.form.get('email', '')
+        password = request.form.get('password', '')
+        # NOTE: This is a placeholder for company authentication.
+        # You would replace this with your actual company user validation logic.
+        # For now, we only handle Google Sign-In for companies.
+        flash('El inicio de sesión con email y contraseña para empresas no está habilitado. Por favor, usa Google.', 'info')
+    return render_template('empresas_login.html', firebase_config=firebase_config)
+
+# Replace the empresas_google_login function
+@app.route('/empresas/google-login', methods=['POST'])
+def empresas_google_login():
+    data = request.get_json()
+    id_token = data.get('idToken')
+
+    if not id_token:
+        return jsonify({"success": False, "error": "No ID token provided."}), 400
+
+    user_info = verify_google_id_token(id_token)
+
+    if user_info:
+        session['user_id'] = user_info['uid']
+        session['user_email'] = user_info['email']
+        session['user_name'] = user_info.get('name', user_info['email'])
+        session['user_role'] = 'empresa'
+        
+        # Redirect to empresa_datos for upsert
+        return jsonify({"success": True, "redirectUrl": url_for('empresa_datos')})
+    else:
+        return jsonify({"success": False, "error": "Invalid ID token."}), 401
+
+# Add new endpoint for empresa_datos
+@app.route('/empresa_datos', methods=['GET', 'POST'])
+def empresa_datos():
+    if 'user_email' not in session:
+        return redirect(url_for('empresas_login'))
+    
+    # Upsert email to Firestore
+    from firebase import upsert_empresa_email
+    upsert_empresa_email(session['user_email'])
+    
+    # Render a form or dashboard (create this template)
+    return render_template('empresa_datos.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

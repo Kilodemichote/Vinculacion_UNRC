@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Empresa</title>
+</head>
+<body>
+    <h1>Bienvenido, {{ session.user_name }}</h1>
+    <p>Email: {{ session.user_email }}</p>
+    <p>Tu cuenta ha sido registrada exitosamente.</p>
+    <a href="{{ url_for('empresas') }}">Ir al Dashboard</a>
+</body>
+</html>
