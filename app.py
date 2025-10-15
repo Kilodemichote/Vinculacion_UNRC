@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from firebase import initialize_firebase, verify_google_id_token
+from firebase import initialize_firebase, verify_google_id_token, upsert_empresa_email
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
 
@@ -182,7 +182,6 @@ def empresa_datos():
         return redirect(url_for('empresas_login'))
     
     # Upsert email to Firestore
-    from firebase import upsert_empresa_email
     upsert_empresa_email(session['user_email'])
     
     # Render a form or dashboard (create this template)
