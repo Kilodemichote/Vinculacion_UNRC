@@ -137,3 +137,54 @@ def verify_google_id_token(id_token):
     except Exception as e:
         print(f"Error verifying ID token: {e}")
         return None
+
+def create_vacante(empresa_doc_id, vacante_data):
+    """
+    Creates a new vacante document in the vacantes collection.
+
+    Args:
+        empresa_doc_id: The document ID of the empresa
+        vacante_data: Dictionary containing vacante fields
+
+    Returns:
+        The document ID if successful, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        vacantes_ref = db.collection('vacantes')
+        empresas_ref = db.collection('empresas')
+
+        # Create a reference to the empresa document
+        empresa_ref = empresas_ref.document(empresa_doc_id)
+
+        # Create the vacante document with auto-generated ID
+        doc_ref = vacantes_ref.document()
+
+        # Prepare the data with empresa reference
+        data = {
+            'empresaId': empresa_ref,
+            'titulo': vacante_data.get('titulo', ''),
+            'descripcion': vacante_data.get('descripcion', ''),
+            'requisitos': vacante_data.get('requisitos', ''),
+            'modalidad': vacante_data.get('modalidad', ''),
+            'tipoContrato': vacante_data.get('tipoContrato', ''),
+            'duracion': vacante_data.get('duracion', ''),
+            'horario': vacante_data.get('horario', ''),
+            'sueldo': vacante_data.get('sueldo'),
+            'educación': vacante_data.get('educacion', ''),
+            'experienciaRequerida': vacante_data.get('experienciaRequerida', ''),
+            'habilidadesDuras': vacante_data.get('habilidadesDuras', []),
+            'idiomas': vacante_data.get('idiomas', []),
+            'nombreEmpresa': vacante_data.get('nombreEmpresa', ''),
+            'activa': True,
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'updated_at': firestore.SERVER_TIMESTAMP
+        }
+
+        doc_ref.set(data)
+
+        print(f"New vacante created with ID: {doc_ref.id}")
+        return doc_ref.id
+    except Exception as e:
+        print(f"Error creating vacante: {e}")
+        return None

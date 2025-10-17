@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id
+from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id, create_vacante
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
 
@@ -273,6 +273,83 @@ def empresa_dashboard():
     vacantes = get_vacantes_by_empresa_id(doc_id)
 
     return render_template('empresa_dashboard.html', vacantes=vacantes)
+
+@app.route('/empresas/nueva-vacante', methods=['GET', 'POST'])
+def nueva_vacante():
+    # Check if user is authenticated as empresa
+    if 'user_email' not in session or session.get('user_role') != 'empresa':
+        return redirect(url_for('empresas_login'))
+
+    # Get empresa document ID from session
+    doc_id = session.get('empresa_doc_id')
+
+    if not doc_id:
+        # If doc_id is not in session, fetch it from Firestore
+        correo = session['user_email']
+        empresa = get_empresa_by_correo(correo)
+
+        if empresa:
+            doc_id = empresa['doc_id']
+            session['empresa_doc_id'] = doc_id
+        else:
+            flash('Error: No se encontró la empresa. Por favor completa tus datos primero.', 'error')
+            return redirect(url_for('empresa_datos'))
+
+    # Get empresa data for the form
+    empresa = get_empresa_by_correo(session['user_email'])
+
+    if request.method == 'POST':
+        # Collect form data
+        vacante_data = {
+            'titulo': request.form.get('titulo', '').strip(),
+            'descripcion': request.form.get('descripcion', '').strip(),
+            'requisitos': request.form.get('requisitos', '').strip(),
+            'modalidad': request.form.get('modalidad', '').strip(),
+            'tipoContrato': request.form.get('tipoContrato', '').strip(),
+            'duracion': request.form.get('duracion', '').strip(),
+            'horario': request.form.get('horario', '').strip(),
+            'educacion': request.form.get('educacion', '').strip(),
+            'experienciaRequerida': request.form.get('experienciaRequerida', '').strip(),
+            'nombreEmpresa': empresa.get('nombre', '')
+        }
+
+        # Handle sueldo (number)
+        sueldo_str = request.form.get('sueldo', '').strip()
+        if sueldo_str:
+            try:
+                vacante_data['sueldo'] = float(sueldo_str)
+            except ValueError:
+                vacante_data['sueldo'] = None
+        else:
+            vacante_data['sueldo'] = None
+
+        # Handle arrays: habilidadesDuras and idiomas
+        habilidades_str = request.form.get('habilidadesDuras', '').strip()
+        if habilidades_str:
+            vacante_data['habilidadesDuras'] = [h.strip() for h in habilidades_str.split(',') if h.strip()]
+        else:
+            vacante_data['habilidadesDuras'] = []
+
+        idiomas_str = request.form.get('idiomas', '').strip()
+        if idiomas_str:
+            vacante_data['idiomas'] = [i.strip() for i in idiomas_str.split(',') if i.strip()]
+        else:
+            vacante_data['idiomas'] = []
+
+        # Validate required fields
+        if not vacante_data['titulo']:
+            flash('El título de la vacante es obligatorio.', 'error')
+        else:
+            # Create the vacante
+            vacante_id = create_vacante(doc_id, vacante_data)
+
+            if vacante_id:
+                flash('Vacante creada exitosamente.', 'success')
+                return redirect(url_for('empresa_dashboard'))
+            else:
+                flash('Error al crear la vacante. Inténtalo de nuevo.', 'error')
+
+    return render_template('nueva_vacante.html', empresa=empresa)
 
 if __name__ == '__main__':
     app.run(debug=True)
