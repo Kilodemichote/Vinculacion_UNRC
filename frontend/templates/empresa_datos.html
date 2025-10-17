@@ -246,7 +246,7 @@
                 {% if empresa.is_new %}
                     <p><strong>¡Bienvenido!</strong> Por favor completa la información de tu empresa.</p>
                 {% else %}
-                    <p>Completa o actualiza la información de tu empresa. Los campos con datos existentes no se pueden editar.</p>
+                    <p>Completa o actualiza la información de tu empresa.</p>
                 {% endif %}
 
                 <form method="POST">
@@ -268,7 +268,6 @@
                                 id="{{ name }}"
                                 name="{{ name }}"
                                 value="{{ value or '' }}"
-                                {% if value %}disabled{% endif %}
                                 {% if name == 'correo' %}disabled{% endif %}
                             >
                         </div>
