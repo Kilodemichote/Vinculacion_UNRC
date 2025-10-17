@@ -188,3 +188,134 @@ def create_vacante(empresa_doc_id, vacante_data):
     except Exception as e:
         print(f"Error creating vacante: {e}")
         return None
+
+def get_empresa_by_id(empresa_doc_id):
+    """
+    Retrieves empresa document by document ID.
+    Returns the document data if found, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        empresas_ref = db.collection('empresas')
+        doc = empresas_ref.document(empresa_doc_id).get()
+
+        if doc.exists:
+            data = doc.to_dict()
+            data['doc_id'] = doc.id
+            return data
+
+        return None
+    except Exception as e:
+        print(f"Error retrieving empresa by ID: {e}")
+        return None
+
+def get_vacante_by_id(vacante_id):
+    """
+    Retrieves a vacante document by ID.
+    Returns the document data if found, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        vacantes_ref = db.collection('vacantes')
+        doc = vacantes_ref.document(vacante_id).get()
+
+        if doc.exists:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return data
+
+        return None
+    except Exception as e:
+        print(f"Error retrieving vacante by ID: {e}")
+        return None
+
+def update_vacante(vacante_id, vacante_data):
+    """
+    Updates an existing vacante document.
+
+    Args:
+        vacante_id: The document ID of the vacante
+        vacante_data: Dictionary containing fields to update
+
+    Returns:
+        True if successful, False otherwise.
+    """
+    try:
+        db = firestore.client()
+        vacantes_ref = db.collection('vacantes')
+
+        # Prepare update data (only include fields that are provided)
+        update_data = {}
+
+        allowed_fields = [
+            'titulo', 'descripcion', 'requisitos', 'modalidad', 'tipoContrato',
+            'duracion', 'horario', 'sueldo', 'educación', 'experienciaRequerida',
+            'habilidadesDuras', 'idiomas', 'nombreEmpresa', 'activa'
+        ]
+
+        for field in allowed_fields:
+            if field in vacante_data:
+                update_data[field] = vacante_data[field]
+
+        # Add updated timestamp
+        update_data['updated_at'] = firestore.SERVER_TIMESTAMP
+
+        # Update the document
+        vacantes_ref.document(vacante_id).update(update_data)
+
+        print(f"Vacante {vacante_id} updated successfully")
+        return True
+    except Exception as e:
+        print(f"Error updating vacante: {e}")
+        return False
+
+def delete_vacante(vacante_id):
+    """
+    Deletes a vacante document.
+
+    Args:
+        vacante_id: The document ID of the vacante to delete
+
+    Returns:
+        True if successful, False otherwise.
+    """
+    try:
+        db = firestore.client()
+        vacantes_ref = db.collection('vacantes')
+
+        vacantes_ref.document(vacante_id).delete()
+
+        print(f"Vacante {vacante_id} deleted successfully")
+        return True
+    except Exception as e:
+        print(f"Error deleting vacante: {e}")
+        return False
+
+def verify_vacante_belongs_to_empresa(vacante_id, empresa_doc_id):
+    """
+    Verifies that a vacante belongs to a specific empresa.
+
+    Args:
+        vacante_id: The document ID of the vacante
+        empresa_doc_id: The document ID of the empresa
+
+    Returns:
+        True if the vacante belongs to the empresa, False otherwise.
+    """
+    try:
+        vacante = get_vacante_by_id(vacante_id)
+
+        if not vacante:
+            return False
+
+        # Get the empresa reference from the vacante
+        empresa_ref = vacante.get('empresaId')
+
+        if not empresa_ref:
+            return False
+
+        # Compare the empresa document IDs
+        return empresa_ref.id == empresa_doc_id
+    except Exception as e:
+        print(f"Error verifying vacante ownership: {e}")
+        return False

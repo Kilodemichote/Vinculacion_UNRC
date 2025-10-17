@@ -1,13 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id, create_vacante
+from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id, create_vacante, get_empresa_by_id, update_vacante, delete_vacante, verify_vacante_belongs_to_empresa
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
+
+# Enable CORS for API endpoints (production ready)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Initialize Firebase Admin SDK
 initialize_firebase()
@@ -350,6 +354,265 @@ def nueva_vacante():
                 flash('Error al crear la vacante. Inténtalo de nuevo.', 'error')
 
     return render_template('nueva_vacante.html', empresa=empresa)
+
+# ==================== REST API ENDPOINTS ====================
+
+from functools import wraps
+
+def require_api_key(f):
+    """
+    Decorator to verify API key and empresa subscription status.
+    The API key should be the empresa document ID and must be sent in the API_KEY header.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Try multiple possible API key header names (case-insensitive)
+        api_key = (
+            request.headers.get('X-API-Key') or
+            request.headers.get('X-Api-Key') or
+            request.headers.get('API_KEY') or
+            request.headers.get('Api-Key') or
+            request.headers.get('api-key') or
+            request.headers.get('apikey')
+        )
+
+        content_type = request.headers.get('Content-Type')
+
+        # Verify Content-Type is application/json
+        if content_type != 'application/json':
+            return jsonify({
+                "success": False,
+                "error": "Content-Type must be application/json"
+            }), 415
+
+        # Verify API key is provided
+        if not api_key:
+            return jsonify({
+                "success": False,
+                "error": "X-API-Key header is required (also accepts API_KEY, Api-Key)"
+            }), 401
+
+        # Verify empresa exists
+        empresa = get_empresa_by_id(api_key)
+        if not empresa:
+            return jsonify({
+                "success": False,
+                "error": "Invalid API key"
+            }), 401
+
+        # Verify suscripcionActiva is True
+        if not empresa.get('suscripcionActiva', False):
+            return jsonify({
+                "success": False,
+                "error": "Active subscription required to use the API"
+            }), 403
+
+        # Pass empresa_id to the route function
+        return f(empresa_id=api_key, empresa=empresa, *args, **kwargs)
+
+    return decorated_function
+
+@app.route('/api/vacantes', methods=['GET'])
+@require_api_key
+def api_get_vacantes(empresa_id, empresa):
+    """
+    GET /api/vacantes
+    Retrieves all vacantes for the authenticated empresa.
+    """
+    try:
+        # Get all vacantes for this empresa
+        vacantes = get_vacantes_by_empresa_id(empresa_id)
+
+        # Convert vacantes to JSON-serializable format
+        vacantes_list = []
+        for vacante in vacantes:
+            vacante_dict = {
+                'id': vacante.get('id'),
+                'titulo': vacante.get('titulo'),
+                'descripcion': vacante.get('descripcion'),
+                'requisitos': vacante.get('requisitos'),
+                'modalidad': vacante.get('modalidad'),
+                'tipoContrato': vacante.get('tipoContrato'),
+                'duracion': vacante.get('duracion'),
+                'horario': vacante.get('horario'),
+                'sueldo': vacante.get('sueldo'),
+                'educacion': vacante.get('educación'),
+                'experienciaRequerida': vacante.get('experienciaRequerida'),
+                'habilidadesDuras': vacante.get('habilidadesDuras', []),
+                'idiomas': vacante.get('idiomas', []),
+                'nombreEmpresa': vacante.get('nombreEmpresa'),
+                'activa': vacante.get('activa', True)
+            }
+            vacantes_list.append(vacante_dict)
+
+        return jsonify({
+            "success": True,
+            "count": len(vacantes_list),
+            "vacantes": vacantes_list
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
+
+@app.route('/api/vacante', methods=['POST'])
+@require_api_key
+def api_create_vacante(empresa_id, empresa):
+    """
+    POST /api/vacante
+    Creates a new vacante for the authenticated empresa.
+    """
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "Request body is required"
+            }), 400
+
+        # Validate required field: titulo
+        if not data.get('titulo'):
+            return jsonify({
+                "success": False,
+                "error": "Field 'titulo' is required"
+            }), 400
+
+        # Prepare vacante data
+        vacante_data = {
+            'titulo': data.get('titulo', ''),
+            'descripcion': data.get('descripcion', ''),
+            'requisitos': data.get('requisitos', ''),
+            'modalidad': data.get('modalidad', ''),
+            'tipoContrato': data.get('tipoContrato', ''),
+            'duracion': data.get('duracion', ''),
+            'horario': data.get('horario', ''),
+            'sueldo': data.get('sueldo'),
+            'educacion': data.get('educacion', ''),
+            'experienciaRequerida': data.get('experienciaRequerida', ''),
+            'habilidadesDuras': data.get('habilidadesDuras', []),
+            'idiomas': data.get('idiomas', []),
+            'nombreEmpresa': empresa.get('nombre', ''),
+            'activa': data.get('activa', True)
+        }
+
+        # Create the vacante
+        vacante_id = create_vacante(empresa_id, vacante_data)
+
+        if vacante_id:
+            return jsonify({
+                "success": True,
+                "message": "Vacante created successfully",
+                "vacante_id": vacante_id
+            }), 201
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Failed to create vacante"
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
+
+@app.route('/api/vacante/<vacante_id>', methods=['PUT'])
+@require_api_key
+def api_update_vacante(empresa_id, empresa, vacante_id):
+    """
+    PUT /api/vacante/{id}
+    Updates an existing vacante by ID.
+    """
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "Request body is required"
+            }), 400
+
+        # Verify the vacante belongs to the empresa
+        if not verify_vacante_belongs_to_empresa(vacante_id, empresa_id):
+            return jsonify({
+                "success": False,
+                "error": "Vacante not found or does not belong to your empresa"
+            }), 404
+
+        # Prepare update data (only include provided fields)
+        vacante_data = {}
+
+        allowed_fields = [
+            'titulo', 'descripcion', 'requisitos', 'modalidad', 'tipoContrato',
+            'duracion', 'horario', 'sueldo', 'educacion', 'experienciaRequerida',
+            'habilidadesDuras', 'idiomas', 'nombreEmpresa', 'activa'
+        ]
+
+        for field in allowed_fields:
+            if field in data:
+                vacante_data[field] = data[field]
+
+        if not vacante_data:
+            return jsonify({
+                "success": False,
+                "error": "No valid fields provided for update"
+            }), 400
+
+        # Update the vacante
+        if update_vacante(vacante_id, vacante_data):
+            return jsonify({
+                "success": True,
+                "message": "Vacante updated successfully",
+                "vacante_id": vacante_id
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Failed to update vacante"
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
+
+@app.route('/api/vacante/<vacante_id>', methods=['DELETE'])
+@require_api_key
+def api_delete_vacante(empresa_id, empresa, vacante_id):
+    """
+    DELETE /api/vacante/{id}
+    Deletes a vacante by ID.
+    """
+    try:
+        # Verify the vacante belongs to the empresa
+        if not verify_vacante_belongs_to_empresa(vacante_id, empresa_id):
+            return jsonify({
+                "success": False,
+                "error": "Vacante not found or does not belong to your empresa"
+            }), 404
+
+        # Delete the vacante
+        if delete_vacante(vacante_id):
+            return jsonify({
+                "success": True,
+                "message": "Vacante deleted successfully",
+                "vacante_id": vacante_id
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Failed to delete vacante"
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
