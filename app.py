@@ -35,40 +35,49 @@ def alumnos():
 
 @app.route('/alumnos/login', methods=['GET', 'POST'])
 def alumnos_login():
+     # Prepare Firebase config for the client-side
+    firebase_config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
+    }
+
     if request.method == 'POST':
         email = request.form.get('email', '')
         password = request.form.get('password', '')
-        
-        # Validate form data
-        errors, clean_email, clean_password = validate_login_form(email, password)
-        
-        if errors:
-            for error in errors:
-                flash(error, 'error')
-            return render_template('alumnos_login.html')
-        
-        # Attempt authentication
-        user = authenticate_user_firebase(clean_email, clean_password)
-        
-        if user:
-            # Successful login
-            session['user_id'] = user['user_id']
-            session['user_email'] = user['email']
-            session['user_name'] = user['name']
-            session['user_role'] = user['role']
-            
-            # Clear failed attempts
-            auth_manager.clear_failed_attempts(clean_email)
-            
-            flash(f'¡Bienvenido, {user["name"]}!', 'success')
-            return redirect(url_for('alumnos_dashboard'))
-        else:
-            # Failed login
-            auth_manager.record_failed_attempt(clean_email)
-            flash('Credenciales incorrectas. Verifica tu email y contraseña.', 'error')
+        # NOTE: This is a placeholder for company authentication.
+        # You would replace this with your actual company user validation logic.
+        # For now, we only handle Google Sign-In for companies.
+        flash('El inicio de sesión con email y contraseña para empresas no está habilitado. Por favor, usa Google.', 'info')
+    return render_template('alumnos_login.html', firebase_config=firebase_config)
+
+# Replace the empresas_google_login function
+# Endpoint de Google Login para Alumnos
+@app.route('/alumnos/google-login', methods=['POST'])
+def alumnos_google_login(): # <--- Nombre de función ÚNICO
+    data = request.get_json()
+    id_token = data.get('idToken')
+
+    if not id_token:
+        return jsonify({"success": False, "error": "No ID token provided."}), 400
+
+    user_info = verify_google_id_token(id_token)
+
+    if user_info:
+        # Aquí deberías manejar la sesión/cookie para el alumno y redirigir
+        # Por ahora, solo devolveremos una URL de prueba para que el JS funcione
+        session['user_id'] = user_info['uid']
+        session['user_email'] = user_info['email']
+        session['user_role'] = 'alumno'
+        return jsonify({"success": True, "redirectUrl": url_for('alumnos_dashboard')})
+    else:
+        return jsonify({"success": False, "error": "Invalid ID token."}), 401
     
     return render_template('alumnos_login.html')
-
 @app.route('/alumnos/register', methods=['GET', 'POST'])
 def alumnos_register():
     if request.method == 'POST':
@@ -128,6 +137,9 @@ def logout():
     flash('Has cerrado sesión exitosamente.', 'info')
     return redirect(url_for('home'))
 
+
+
+#Empieza la seccion de empresas
 @app.route('/empresas')
 def empresas():
     # Redirect to login if not authenticated as a company

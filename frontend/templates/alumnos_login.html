@@ -1,11 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
+<style>
+    .google-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .google-button svg {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        padding: 3px;
+    }
+
+    .google-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 191, 0.3);
+        /* Resalta el tono teal */
+    }
+
+    .google-button:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(0, 255, 191, 0.2);
+    }
+</style>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Alumnos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
+
 <body>
     <div class="auth-container">
         <div class="auth-wrapper">
@@ -13,7 +52,8 @@
             <div class="auth-header">
                 <a href="{{ url_for('home') }}" class="back-link">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                     Volver al inicio
                 </a>
@@ -24,41 +64,47 @@
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="flash-message flash-{{ category }}">
-                                <span class="flash-icon">
-                                    {% if category == 'error' %}
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-                                            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-                                        </svg>
-                                    {% elif category == 'success' %}
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M22 11.08V12A10 10 0 1 1 5.93 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    {% elif category == 'info' %}
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    {% else %}
-                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10.29 3.86L1.82 18A2 2 0 0 0 3.64 21H20.36A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2"/>
-                                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2"/>
-                                        </svg>
-                                    {% endif %}
-                                </span>
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    <span class="flash-icon">
+                        {% if category == 'error' %}
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" />
+                            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        {% elif category == 'success' %}
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12A10 10 0 1 1 5.93 7.5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        {% elif category == 'info' %}
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        {% else %}
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M10.29 3.86L1.82 18A2 2 0 0 0 3.64 21H20.36A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        {% endif %}
+                    </span>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             <!-- Login Form -->
@@ -66,20 +112,17 @@
                 <div class="form-group">
                     <label for="email" class="form-label">Usuario (Email)</label>
                     <div class="input-wrapper">
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            class="form-input"
-                            placeholder="tu.email@ejemplo.com"
-                            required
-                            autocomplete="email"
-                            value="{{ request.form.get('email', '') }}"
-                        >
+                        <input type="email" id="email" name="email" class="form-input"
+                            placeholder="tu.email@ejemplo.com" required autocomplete="email"
+                            value="{{ request.form.get('email', '') }}">
                         <span class="input-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path
+                                    d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </span>
                     </div>
@@ -88,32 +131,36 @@
                 <div class="form-group">
                     <label for="password" class="form-label">Contraseña</label>
                     <div class="input-wrapper">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            class="form-input"
-                            placeholder="••••••••"
-                            required
-                            autocomplete="current-password"
-                        >
+                        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••"
+                            required autocomplete="current-password">
                         <span class="input-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2"/>
-                                <path d="M7 11V7A5 5 0 0 1 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="12" cy="16" r="1" stroke="currentColor" stroke-width="2" />
+                                <path d="M7 11V7A5 5 0 0 1 17 7V11" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </span>
                         <button type="button" class="password-toggle" onclick="togglePassword()">
                             <svg class="eye-open" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
                             </svg>
-                            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
-                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12A18.45 18.45 0 0 1 5.06 5.06L17.94 17.94Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4C19 4 23 12 23 12A18.5 18.5 0 0 1 19.42 16.42" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M8.21 8.21A3 3 0 1 0 15.79 15.79" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                style="display: none;">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12A18.45 18.45 0 0 1 5.06 5.06L17.94 17.94Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4C19 4 23 12 23 12A18.5 18.5 0 0 1 19.42 16.42"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M8.21 8.21A3 3 0 1 0 15.79 15.79" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
                     </div>
@@ -123,11 +170,41 @@
                     <span class="button-text">Iniciar Sesión</span>
                     <span class="button-loader" style="display: none;">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 12A9 9 0 1 1 3 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12A9 9 0 1 1 3 12" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </span>
                 </button>
             </form>
+            <!-- Separator -->
+            <div class="divider">
+                <span>o</span>
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <button type="button" class="auth-button google-button" id="google-signin-btn">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                    <path
+                        d="M21.35 11.1H12.18V13.83H18.68C18.36 15.63 17.16 17.07 15.38 18.13V20.18H18.18C20.23 18.39 21.5 15.9 21.5 12.91C21.5 12.29 21.43 11.69 21.35 11.1Z"
+                        fill="#4285F4" />
+                    <path
+                        d="M12.18 21.5C15.04 21.5 17.45 20.56 19.18 19.18L16.38 17.13C15.44 17.79 14.07 18.25 12.18 18.25C9.38 18.25 7.03 16.34 6.19 13.83H3.32V15.88C4.9 19.19 8.27 21.5 12.18 21.5Z"
+                        fill="#34A853" />
+                    <path
+                        d="M6.19 13.83C5.93 13.12 5.78 12.35 5.78 11.5C5.78 10.65 5.93 9.88 6.19 9.17V7.12H3.32C2.46 8.79 2 10.09 2 11.5C2 12.91 2.46 14.21 3.32 15.88L6.19 13.83Z"
+                        fill="#FBBC05" />
+                    <path
+                        d="M12.18 5.75C13.66 5.75 14.96 6.27 15.9 7.15L18.25 4.8C16.45 3.14 14.04 2.5 12.18 2.5C8.27 2.5 4.9 4.81 3.32 7.12L6.19 9.17C7.03 6.66 9.38 5.75 12.18 5.75Z"
+                        fill="#EA4335" />
+                </svg>
+                <span class="button-text">Iniciar sesión con Google</span>
+                <span class="button-loader" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12A9 9 0 1 1 3 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </span>
+            </button>
 
             <!-- Auth Links -->
             <div class="auth-links">
@@ -158,7 +235,7 @@
             const toggleButton = document.querySelector('.password-toggle');
             const eyeOpen = toggleButton.querySelector('.eye-open');
             const eyeClosed = toggleButton.querySelector('.eye-closed');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeOpen.style.display = 'none';
@@ -171,26 +248,130 @@
         }
 
         // Form submission with loading state
-        document.querySelector('.auth-form').addEventListener('submit', function() {
+        document.querySelector('.auth-form').addEventListener('submit', function () {
             const button = document.querySelector('.login-button');
             const buttonText = button.querySelector('.button-text');
             const buttonLoader = button.querySelector('.button-loader');
-            
+
             button.disabled = true;
             buttonText.style.display = 'none';
             buttonLoader.style.display = 'inline-block';
         });
 
         // Auto-hide flash messages
-        setTimeout(function() {
+        setTimeout(function () {
             const flashMessages = document.querySelectorAll('.flash-message');
-            flashMessages.forEach(function(message) {
+            flashMessages.forEach(function (message) {
                 message.style.opacity = '0';
-                setTimeout(function() {
+                setTimeout(function () {
                     message.remove();
                 }, 300);
             });
         }, 5000);
     </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.password-toggle');
+            const eyeOpen = toggleButton.querySelector('.eye-open');
+            const eyeClosed = toggleButton.querySelector('.eye-closed');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+
+        // Form submission with loading state
+        document.querySelector('.auth-form').addEventListener('submit', function () {
+            const button = document.querySelector('.login-button');
+            const buttonText = button.querySelector('.button-text');
+            const buttonLoader = button.querySelector('.button-loader');
+
+            button.disabled = true;
+            buttonText.style.display = 'none';
+            buttonLoader.style.display = 'inline-block';
+        });
+
+        // Auto-hide flash messages
+        setTimeout(function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                message.style.opacity = '0';
+                setTimeout(function () {
+                    message.remove();
+                }, 300);
+            });
+        }, 5000);
+
+        // --- Google Sign-In Logic ---
+
+        // Initialize Firebase
+        firebase.initializeApp({{ firebase_config| tojson }});
+
+        const googleSignInButton = document.getElementById('google-signin-btn');
+        googleSignInButton.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+
+            const buttonText = googleSignInButton.querySelector('.button-text');
+            const buttonLoader = googleSignInButton.querySelector('.button-loader');
+
+            googleSignInButton.disabled = true;
+            buttonText.style.display = 'none';
+            buttonLoader.style.display = 'inline-block';
+
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // This gives you a Google Access Token. You can use it to access the Google API.
+                    const credential = result.credential;
+                    const token = credential.accessToken;
+                    // The signed-in user info.
+                    const user = result.user;
+
+                    // Get the ID token to send to the backend
+                    return user.getIdToken();
+                })
+                .then(idToken => {
+                    // Send token to your backend
+                    return fetch("{{ url_for('alumnos_google_login') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ idToken: idToken }),
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        // Handle errors, e.g., show a flash message
+                        console.error('Login failed:', data.error);
+                        alert('El inicio de sesión con Google falló. Por favor, inténtalo de nuevo.');
+                        googleSignInButton.disabled = false;
+                        buttonText.style.display = 'inline-block';
+                        buttonLoader.style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error during Google sign-in:", error);
+                    alert(`Error: ${error.message}`);
+                    googleSignInButton.disabled = false;
+                    buttonText.style.display = 'inline-block';
+                    buttonLoader.style.display = 'none';
+                });
+        });
+    </script>
+
 </body>
+
 </html>
