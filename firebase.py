@@ -319,3 +319,51 @@ def verify_vacante_belongs_to_empresa(vacante_id, empresa_doc_id):
     except Exception as e:
         print(f"Error verifying vacante ownership: {e}")
         return False
+
+def get_all_empresas():
+    """
+    Retrieves all empresa documents from the empresas collection.
+    Returns a list of all empresa documents.
+    """
+    try:
+        db = firestore.client()
+        empresas_ref = db.collection('empresas')
+        docs = empresas_ref.stream()
+
+        empresas = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['doc_id'] = doc.id  # Include document ID
+            empresas.append(data)
+
+        return empresas
+    except Exception as e:
+        print(f"Error retrieving all empresas: {e}")
+        return []
+
+def update_empresa_subscription(doc_id, suscripcion_activa):
+    """
+    Updates the suscripcionActiva field of an empresa document.
+
+    Args:
+        doc_id: The document ID of the empresa
+        suscripcion_activa: Boolean value for suscripcionActiva
+
+    Returns:
+        True if successful, False otherwise.
+    """
+    try:
+        db = firestore.client()
+        empresas_ref = db.collection('empresas')
+
+        # Update only the suscripcionActiva field
+        empresas_ref.document(doc_id).update({
+            'suscripcionActiva': suscripcion_activa,
+            'updated_at': firestore.SERVER_TIMESTAMP
+        })
+
+        print(f"Empresa {doc_id} subscription updated to {suscripcion_activa}")
+        return True
+    except Exception as e:
+        print(f"Error updating empresa subscription: {e}")
+        return False

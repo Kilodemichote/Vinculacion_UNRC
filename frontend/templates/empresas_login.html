@@ -50,6 +50,18 @@
             color: var(--white);
             font-weight: bold;
         }
+
+        /* Facebook Button Specific Styles */
+        .facebook-button {
+            background: linear-gradient(135deg, #1877F2, #0C63D4);
+            color: var(--white);
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .facebook-button:hover {
+            box-shadow: 0 8px 25px rgba(24, 119, 242, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -57,12 +69,6 @@
         <div class="auth-wrapper">
             <!-- Header -->
             <div class="auth-header">
-                <a href="{{ url_for('home') }}" class="back-link">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Volver al inicio
-                </a>
                 <h1>Portal de Empresas</h1>
                 <p>Inicia sesión con tus credenciales de empresa</p>
             </div>
@@ -193,20 +199,39 @@
                 </span>
             </button>
 
+            <!-- Facebook Sign-In Button -->
+            <button type="button" class="auth-button facebook-button" id="facebook-signin-btn">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                    <path d="M24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 17.9895 4.3882 22.954 10.125 23.8542V15.4688H7.07812V12H10.125V9.35625C10.125 6.34875 11.9166 4.6875 14.6576 4.6875C15.9701 4.6875 17.3438 4.92188 17.3438 4.92188V7.875H15.8306C14.34 7.875 13.875 8.80008 13.875 9.75V12H17.2031L16.6711 15.4688H13.875V23.8542C19.6118 22.954 24 17.9895 24 12Z" fill="white"/>
+                </svg>
+                <span class="button-text">Iniciar sesión con Facebook</span>
+                <span class="button-loader" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12A9 9 0 1 1 3 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+            </button>
+
             <!-- Auth Links -->
             <div class="auth-links">
                 <a href="#" class="auth-link forgot-link">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
+
+            <!-- Back to Home Link -->
+            <div class="auth-links" style="margin-top: 1rem;">
+                <a href="{{ url_for('home') }}" class="back-link">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Volver al inicio
+                </a>
+            </div>
         </div>
 
         <!-- Background decoration -->
-        <div class="auth-background">
-            <div class="bg-shape shape-1"></div>
-            <div class="bg-shape shape-2"></div>
-            <div class="bg-shape shape-3"></div>
-        </div>
+        <!-- Cache bust value: {{ cache_bust }} -->
+        <!-- Image URL: {{ url_for('static', filename='images/unrc-pattern.png') }}?v={{ cache_bust }} -->
+        <div class="auth-background" style="background-image: url('{{ url_for('static', filename='images/unrc-pattern.png') }}?v={{ cache_bust }}');"></div>
     </div>
 
     <!-- Firebase SDK -->
@@ -254,18 +279,19 @@
             });
         }, 5000);
 
-        // --- Google Sign-In Logic ---
+        // --- Google and Facebook Sign-In Logic ---
 
         // Initialize Firebase
         firebase.initializeApp({{ firebase_config|tojson }});
 
+        // Google Sign-In
         const googleSignInButton = document.getElementById('google-signin-btn');
         googleSignInButton.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
-            
+
             const buttonText = googleSignInButton.querySelector('.button-text');
             const buttonLoader = googleSignInButton.querySelector('.button-loader');
-            
+
             googleSignInButton.disabled = true;
             buttonText.style.display = 'none';
             buttonLoader.style.display = 'inline-block';
@@ -308,6 +334,61 @@
                     console.error("Error during Google sign-in:", error);
                     alert(`Error: ${error.message}`);
                     googleSignInButton.disabled = false;
+                    buttonText.style.display = 'inline-block';
+                    buttonLoader.style.display = 'none';
+                });
+        });
+
+        // Facebook Sign-In
+        const facebookSignInButton = document.getElementById('facebook-signin-btn');
+        facebookSignInButton.addEventListener('click', () => {
+            const provider = new firebase.auth.FacebookAuthProvider();
+
+            const buttonText = facebookSignInButton.querySelector('.button-text');
+            const buttonLoader = facebookSignInButton.querySelector('.button-loader');
+
+            facebookSignInButton.disabled = true;
+            buttonText.style.display = 'none';
+            buttonLoader.style.display = 'inline-block';
+
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+                    const credential = result.credential;
+                    const token = credential.accessToken;
+                    // The signed-in user info.
+                    const user = result.user;
+
+                    // Get the ID token to send to the backend
+                    return user.getIdToken();
+                })
+                .then(idToken => {
+                    // Send token to your backend
+                    return fetch("{{ url_for('empresas_facebook_login') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ idToken: idToken }),
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        // Handle errors, e.g., show a flash message
+                        console.error('Login failed:', data.error);
+                        alert('El inicio de sesión con Facebook falló. Por favor, inténtalo de nuevo.');
+                        facebookSignInButton.disabled = false;
+                        buttonText.style.display = 'inline-block';
+                        buttonLoader.style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error during Facebook sign-in:", error);
+                    alert(`Error: ${error.message}`);
+                    facebookSignInButton.disabled = false;
                     buttonText.style.display = 'inline-block';
                     buttonLoader.style.display = 'none';
                 });

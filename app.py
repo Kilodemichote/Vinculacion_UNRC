@@ -6,9 +6,13 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id, create_vacante, get_empresa_by_id, update_vacante, delete_vacante, verify_vacante_belongs_to_empresa
+from firebase import initialize_firebase, verify_google_id_token, get_empresa_by_correo, create_empresa, update_empresa, get_vacantes_by_empresa_id, create_vacante, get_empresa_by_id, update_vacante, delete_vacante, verify_vacante_belongs_to_empresa, get_all_empresas, update_empresa_subscription
 
 app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
+
+# Disable template and static file caching for development
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 # Enable CORS for API endpoints (production ready)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -164,11 +168,25 @@ def empresas_login():
     if request.method == 'POST':
         email = request.form.get('email', '')
         password = request.form.get('password', '')
-        # NOTE: This is a placeholder for company authentication.
-        # You would replace this with your actual company user validation logic.
-        # For now, we only handle Google Sign-In for companies.
-        flash('El inicio de sesión con email y contraseña para empresas no está habilitado. Por favor, usa Google.', 'info')
-    return render_template('empresas_login.html', firebase_config=firebase_config)
+
+        # Check for admin login
+        admin_pwd = os.getenv('ADMIN_PWD')
+        if email == 'admin' and admin_pwd and password == admin_pwd:
+            session['user_role'] = 'admin'
+            session['user_email'] = 'admin'
+            session['user_name'] = 'Administrador'
+            return redirect(url_for('admin_dashboard'))
+
+        # If not admin, show message for regular empresa users
+        flash('El inicio de sesión con email y contraseña para empresas no está habilitado por el momento. Por favor, usa login de Google.', 'info')
+
+    # Add cache-busting timestamp
+    import time
+    cache_bust = int(time.time())
+
+    print(f"DEBUG: Rendering empresas_login with cache_bust={cache_bust}")
+
+    return render_template('empresas_login.html', firebase_config=firebase_config, cache_bust=cache_bust)
 
 # Replace the empresas_google_login function
 @app.route('/empresas/google-login', methods=['POST'])
@@ -186,7 +204,29 @@ def empresas_google_login():
         session['user_email'] = user_info['email']
         session['user_name'] = user_info.get('name', user_info['email'])
         session['user_role'] = 'empresa'
-        
+
+        # Redirect to empresa_datos for upsert
+        return jsonify({"success": True, "redirectUrl": url_for('empresa_datos')})
+    else:
+        return jsonify({"success": False, "error": "Invalid ID token."}), 401
+
+# Facebook login endpoint for empresas
+@app.route('/empresas/facebook-login', methods=['POST'])
+def empresas_facebook_login():
+    data = request.get_json()
+    id_token = data.get('idToken')
+
+    if not id_token:
+        return jsonify({"success": False, "error": "No ID token provided."}), 400
+
+    user_info = verify_google_id_token(id_token)  # Firebase SDK verifies all provider tokens
+
+    if user_info:
+        session['user_id'] = user_info['uid']
+        session['user_email'] = user_info['email']
+        session['user_name'] = user_info.get('name', user_info['email'])
+        session['user_role'] = 'empresa'
+
         # Redirect to empresa_datos for upsert
         return jsonify({"success": True, "redirectUrl": url_for('empresa_datos')})
     else:
@@ -289,6 +329,37 @@ def empresa_dashboard():
     vacantes = get_vacantes_by_empresa_id(doc_id)
 
     return render_template('empresa_dashboard.html', vacantes=vacantes)
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    # Check if user is authenticated as admin
+    if 'user_role' not in session or session.get('user_role') != 'admin':
+        flash('Acceso denegado. Solo administradores pueden acceder.', 'error')
+        return redirect(url_for('empresas_login'))
+
+    # Get all empresas from Firebase
+    empresas = get_all_empresas()
+
+    return render_template('empresas_admin.html', empresas=empresas)
+
+@app.route('/admin/update-subscription', methods=['POST'])
+def admin_update_subscription():
+    # Check if user is authenticated as admin
+    if 'user_role' not in session or session.get('user_role') != 'admin':
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    doc_id = data.get('doc_id')
+    suscripcion_activa = data.get('suscripcionActiva')
+
+    if not doc_id or suscripcion_activa is None:
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
+
+    # Update the subscription status
+    if update_empresa_subscription(doc_id, suscripcion_activa):
+        return jsonify({"success": True, "message": "Subscription updated successfully"}), 200
+    else:
+        return jsonify({"success": False, "error": "Failed to update subscription"}), 500
 
 @app.route('/empresas/nueva-vacante', methods=['GET', 'POST'])
 def nueva_vacante():

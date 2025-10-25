@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Empresas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empresas_admin.css') }}">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-content">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-brand">Panel de Administración</a>
+            <div class="nav-links">
+                <a href="{{ url_for('logout') }}" class="nav-link">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>Gestión de Empresas</h1>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ empresas|length }}</h3>
+                    <p>Empresa{% if empresas|length != 1 %}s{% endif %} Registrada{% if empresas|length != 1 %}s{% endif %}</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ empresas | selectattr('suscripcionActiva', 'equalto', true) | list | length }}</h3>
+                    <p>Suscripciones Activas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empresas Table -->
+        {% if empresas %}
+            <div class="table-container">
+                <table class="empresas-table">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Correo</th>
+                            <th>Suscripción Activa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for empresa in empresas %}
+                            <tr>
+                                <td class="empresa-nombre">{{ empresa.nombre or 'Sin nombre' }}</td>
+                                <td class="empresa-correo">{{ empresa.correo }}</td>
+                                <td class="empresa-subscription">
+                                    <label class="checkbox-container">
+                                        <input
+                                            type="checkbox"
+                                            class="subscription-checkbox"
+                                            data-doc-id="{{ empresa.doc_id }}"
+                                            {% if empresa.suscripcionActiva %}checked{% endif %}
+                                        >
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <h3>No hay empresas registradas</h3>
+                <p>Aún no se han registrado empresas en el sistema.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Handle subscription checkbox changes
+        document.querySelectorAll('.subscription-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const docId = this.getAttribute('data-doc-id');
+                const isChecked = this.checked;
+
+                // Disable the checkbox while updating
+                this.disabled = true;
+
+                // Send update to server
+                fetch('{{ url_for("admin_update_subscription") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        doc_id: docId,
+                        suscripcionActiva: isChecked
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success feedback
+                        this.parentElement.parentElement.classList.add('update-success');
+                        setTimeout(() => {
+                            this.parentElement.parentElement.classList.remove('update-success');
+                        }, 1000);
+                    } else {
+                        // Revert checkbox on error
+                        alert('Error al actualizar la suscripción: ' + data.error);
+                        this.checked = !isChecked;
+                    }
+                    this.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión. Por favor, intenta de nuevo.');
+                    this.checked = !isChecked;
+                    this.disabled = false;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

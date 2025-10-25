@@ -405,40 +405,10 @@ body {
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-}
-
-.bg-shape {
-    position: absolute;
-    border-radius: 50%;
-    background: linear-gradient(135deg, 
-        rgba(35, 91, 78, 0.1), 
-        rgba(0, 146, 104, 0.05)
-    );
-    animation: float 6s ease-in-out infinite;
-}
-
-.shape-1 {
-    width: 300px;
-    height: 300px;
-    top: 10%;
-    left: -10%;
-    animation-delay: 0s;
-}
-
-.shape-2 {
-    width: 200px;
-    height: 200px;
-    top: 60%;
-    right: -5%;
-    animation-delay: 2s;
-}
-
-.shape-3 {
-    width: 150px;
-    height: 150px;
-    bottom: 20%;
-    left: 20%;
-    animation-delay: 4s;
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.08;
+    filter: blur(0.5px);
 }
 
 /* Animations */
@@ -493,17 +463,6 @@ body {
     }
 }
 
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-    }
-    33% {
-        transform: translateY(-20px) rotate(120deg);
-    }
-    66% {
-        transform: translateY(10px) rotate(240deg);
-    }
-}
 
 /* Responsive Design */
 
@@ -591,25 +550,6 @@ body {
     .password-requirements {
         padding: 0.875rem;
     }
-    
-    .bg-shape {
-        opacity: 0.7;
-    }
-    
-    .shape-1 {
-        width: 200px;
-        height: 200px;
-    }
-    
-    .shape-2 {
-        width: 150px;
-        height: 150px;
-    }
-    
-    .shape-3 {
-        width: 100px;
-        height: 100px;
-    }
 }
 
 /* Extra small devices */
@@ -641,8 +581,7 @@ body {
     .form-input,
     .auth-button,
     .auth-link,
-    .flash-message,
-    .bg-shape {
+    .flash-message {
         transition: none;
         animation: none;
     }
