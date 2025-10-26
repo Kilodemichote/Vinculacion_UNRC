@@ -440,7 +440,6 @@ def create_alumno(correo):
         doc_ref = alumnos_ref.document()
         doc_ref.set(
             {
-                "correo": correo,
                 "nombre": None,
                 "edad": None,
                 "estatus": None,

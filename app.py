@@ -260,7 +260,6 @@ def alumnos_perfil():
         for key in [
             "nombre",
             "edad",
-            "correo",
             "estatus",
             "semestre",
             "promedio",
