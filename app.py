@@ -77,6 +77,7 @@ def alumnos_google_login(): # <--- Nombre de función ÚNICO
         session['user_id'] = user_info['uid']
         session['user_email'] = user_info['email']
         session['user_role'] = 'alumno'
+        session['user_name'] = user_info.get('name', 'Alumno')
         return jsonify({"success": True, "redirectUrl": url_for('alumnos_dashboard')})
     else:
         return jsonify({"success": False, "error": "Invalid ID token."}), 401
