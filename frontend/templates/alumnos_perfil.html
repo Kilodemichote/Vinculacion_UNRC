@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Alumno</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* Estilo adicional específico para el formulario */
+        .form-container {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 3rem 3.5rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            max-width: 1100px;
+            /* antes 900px */
+            margin: 2rem auto;
+            border: 1px solid rgba(35, 91, 78, 0.1);
+            transition: max-width 0.3s ease;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-green);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-teal);
+            box-shadow: 0 0 0 3px rgba(0, 146, 104, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            text-align: right;
+            margin-top: 2rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(35, 91, 78, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Encabezado -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Perfil del Alumno</h1>
+                <nav class="header-nav">
+                    <a href="/logout" class="logout-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M9 12h12m0 0l-3-3m3 3l-3 3" />
+                        </svg>
+                        Cerrar sesión
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <div class="dashboard-content">
+                <div class="form-container">
+                    <h2>Datos del Alumno</h2>
+                    <form action="/alumnos/perfil" method="POST">
+
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edad">Edad</label>
+                            <input type="number" id="edad" name="edad" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="correo">Correo</label>
+                            <input type="email" id="correo" name="correo" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estatus">Estatus escolar</label>
+                            <select id="estatus" name="estatus" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="semestre">Semestre (activo)</label>
+                            <input type="text" id="semestre" name="semestre" placeholder="Ej. 5°" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="promedio">Promedio general</label>
+                            <input type="number" step="0.01" id="promedio" name="promedio" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="area1">Área de interés 1</label>
+                            <input type="text" id="area1" name="area1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="area2">Área de interés 2</label>
+                            <input type="text" id="area2" name="area2" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="area3">Área de interés 3</label>
+                            <input type="text" id="area3" name="area3" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habilidades_tecnicas">Habilidades técnicas</label>
+                            <textarea id="habilidades_tecnicas" name="habilidades_tecnicas"
+                                placeholder="Ej. Python, SQL, Excel..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habilidades_blandas">Habilidades blandas</label>
+                            <textarea id="habilidades_blandas" name="habilidades_blandas"
+                                placeholder="Ej. Comunicación, trabajo en equipo..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="idiomas">Idiomas</label>
+                            <input type="text" id="idiomas" name="idiomas" placeholder="Ej. Español, Inglés (B2)" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="submit-btn">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

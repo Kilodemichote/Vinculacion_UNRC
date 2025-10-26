@@ -432,3 +432,8 @@ body {
         border-width: 3px;
     }
 }
+
+.card-link {
+  text-decoration: none;  /* Quita el subrayado */
+  color: inherit;         /* Hace que el texto herede el color de su padre (en lugar de ser azul) */
+}

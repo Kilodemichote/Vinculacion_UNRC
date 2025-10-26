@@ -142,7 +142,16 @@ def logout():
     flash('Has cerrado sesión exitosamente.', 'info')
     return redirect(url_for('home'))
 
-
+@app.route('/alumnos/perfil', methods=['GET', 'POST'])
+def alumnos_perfil():  # <-- Este es el nombre que usas en url_for
+    
+    if request.method == 'POST':
+        # Aquí puedes procesar los datos del formulario si quieres
+        # nombre = request.form.get('nombre')
+        pass
+    
+    # Esta línea busca 'alumnos_perfil.html' en tu carpeta 'templates'
+    return render_template('alumnos_perfil.html')
 
 #Empieza la seccion de empresas
 @app.route('/empresas')
