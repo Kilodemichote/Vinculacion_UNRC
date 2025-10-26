@@ -189,12 +189,12 @@ def logout():
 
 @app.route("/alumnos/perfil", methods=["GET", "POST"])
 def alumnos_perfil():
-    # 1️⃣ Verificar sesión
+    # Verificar sesión
     if "user_email" not in session:
         return redirect(url_for("alumnos_login"))
     correo_sesion = session["user_email"]
 
-    # 2️⃣ POST: actualizar perfil
+    # POST: actualizar perfil
     if request.method == "POST":
         doc_id = session.get("alumno_doc_id")
         if not doc_id:
@@ -239,7 +239,7 @@ def alumnos_perfil():
             flash("No se proporcionaron datos nuevos para actualizar.", "info")
         return redirect(url_for("alumnos_perfil"))
 
-    # 3️⃣ GET: mostrar perfil
+    # GET: mostrar perfil
     alumno_data = get_alumno_by_correo(correo_sesion)
     if alumno_data:
         session["alumno_doc_id"] = alumno_data["doc_id"]
@@ -254,7 +254,7 @@ def alumnos_perfil():
         is_new_alumno = True
         flash("¡Bienvenido! Por favor, completa tu perfil.", "info")
 
-    # 4️⃣ Preparar datos para plantilla
+    # Preparar datos para plantilla
     alumno_render_data = {
         key: alumno_data.get(key)
         for key in [
