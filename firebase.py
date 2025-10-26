@@ -400,3 +400,88 @@ def update_empresa_subscription(doc_id, suscripcion_activa):
     except Exception as e:
         print(f"Error updating empresa subscription: {e}")
         return False
+
+
+def get_alumno_by_correo(correo):
+    """
+    Retrieves alumno document by correo (email).
+    Returns the document data if found, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        alumnos_ref = db.collection("alumnos")
+
+        # Query by correo field
+        query = alumnos_ref.where("correo", "==", correo).limit(1)
+        docs = query.stream()
+
+        for doc in docs:
+            data = doc.to_dict()
+            data["doc_id"] = doc.id  # Include document ID for updates
+            return data
+
+        return None
+    except Exception as e:
+        print(f"Error retrieving alumno by correo: {e}")
+        return None
+
+
+def create_alumno(correo):
+    """
+    Creates a new alumno document with just the correo field.
+    Uses automatic document ID assignment.
+    Returns the document ID if successful, otherwise None.
+    """
+    try:
+        db = firestore.client()
+        alumnos_ref = db.collection("alumnos")
+
+        # Create new document with auto-generated ID
+        doc_ref = alumnos_ref.document()
+        doc_ref.set(
+            {
+                "correo": correo,
+                "nombre": None,
+                "edad": None,
+                "estatus": None,
+                "semestre": None,
+                "promedio": None,
+                "area1": None,
+                "area2": None,
+                "area3": None,
+                "habilidades_tecnicas": None,
+                "habilidades_blandas": None,
+                "idiomas": None,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+            }
+        )
+
+        print(f"New alumno created with correo: {correo}, doc_id: {doc_ref.id}")
+        return doc_ref.id
+    except Exception as e:
+        print(f"Error creating alumno: {e}")
+        return None
+
+
+def update_alumno(doc_id, data):
+    """
+    Updates an existing alumno document.
+    data should be a dict with the fields to update.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        db = firestore.client()
+        alumnos_ref = db.collection("alumnos")
+
+        # Add timestamp to the update
+        data["updated_at"] = firestore.SERVER_TIMESTAMP
+
+        # Update the document
+        alumnos_ref.document(doc_id).update(data)
+
+        print(f"Alumno document {doc_id} updated successfully")
+        return True
+    except Exception as e:
+        print(f"Error updating alumno: {e}")
+        return False

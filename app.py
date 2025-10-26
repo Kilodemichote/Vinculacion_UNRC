@@ -29,6 +29,9 @@ from firebase import (
     verify_vacante_belongs_to_empresa,
     get_all_empresas,
     update_empresa_subscription,
+    get_alumno_by_correo,
+    create_alumno,
+    update_alumno,
 )
 
 app = Flask(
@@ -185,15 +188,94 @@ def logout():
 
 
 @app.route("/alumnos/perfil", methods=["GET", "POST"])
-def alumnos_perfil():  # <-- Este es el nombre que usas en url_for
+def alumnos_perfil():
+    # 1️⃣ Verificar sesión
+    if "user_email" not in session:
+        return redirect(url_for("alumnos_login"))
+    correo_sesion = session["user_email"]
 
+    # 2️⃣ POST: actualizar perfil
     if request.method == "POST":
-        # Aquí puedes procesar los datos del formulario si quieres
-        # nombre = request.form.get('nombre')
-        pass
+        doc_id = session.get("alumno_doc_id")
+        if not doc_id:
+            flash("Error: No se encontró el documento del alumno.", "error")
+            return redirect(url_for("alumnos_perfil"))
 
-    # Esta línea busca 'alumnos_perfil.html' en tu carpeta 'templates'
-    return render_template("alumnos_perfil.html")
+        campos = [
+            "nombre",
+            "edad",
+            "estatus",
+            "semestre",
+            "promedio",
+            "area1",
+            "area2",
+            "area3",
+            "habilidades_tecnicas",
+            "habilidades_blandas",
+            "idiomas",
+        ]
+
+        update_data = {}
+        for campo in campos:
+            valor = request.form.get(campo, "").strip()
+            if valor:
+                update_data[campo] = valor
+
+        # Conversión de tipos
+        for campo, tipo in [("edad", int), ("promedio", float)]:
+            if campo in update_data:
+                try:
+                    update_data[campo] = tipo(update_data[campo])
+                except ValueError:
+                    flash(f"El campo {campo} debe ser un número.", "error")
+                    return redirect(url_for("alumnos_perfil"))
+
+        if update_data:
+            if update_alumno(doc_id, update_data):
+                flash("Perfil actualizado exitosamente.", "success")
+            else:
+                flash("Error al actualizar el perfil. Inténtalo de nuevo.", "error")
+        else:
+            flash("No se proporcionaron datos nuevos para actualizar.", "info")
+        return redirect(url_for("alumnos_perfil"))
+
+    # 3️⃣ GET: mostrar perfil
+    alumno_data = get_alumno_by_correo(correo_sesion)
+    if alumno_data:
+        session["alumno_doc_id"] = alumno_data["doc_id"]
+        is_new_alumno = False
+    else:
+        doc_id = create_alumno(correo_sesion)
+        if not doc_id:
+            flash("Error al crear tu registro de alumno.", "error")
+            return redirect(url_for("alumnos_login"))
+        session["alumno_doc_id"] = doc_id
+        alumno_data = get_alumno_by_correo(correo_sesion)
+        is_new_alumno = True
+        flash("¡Bienvenido! Por favor, completa tu perfil.", "info")
+
+    # 4️⃣ Preparar datos para plantilla
+    alumno_render_data = {
+        key: alumno_data.get(key)
+        for key in [
+            "nombre",
+            "edad",
+            "correo",
+            "estatus",
+            "semestre",
+            "promedio",
+            "area1",
+            "area2",
+            "area3",
+            "habilidades_tecnicas",
+            "habilidades_blandas",
+            "idiomas",
+        ]
+    }
+    alumno_render_data["is_new"] = is_new_alumno
+    alumno_render_data["doc_id"] = alumno_data.get("doc_id")
+
+    return render_template("alumnos_perfil.html", alumno=alumno_render_data)
 
 
 # Empieza la seccion de empresas
