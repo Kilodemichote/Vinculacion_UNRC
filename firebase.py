@@ -426,35 +426,43 @@ def get_alumno_by_correo(correo):
         return None
 
 
-def create_alumno(correo):
+def create_alumno(correo, initial_data=None):
     """
-    Creates a new alumno document with just the correo field.
+    Creates a new alumno document.
     Uses automatic document ID assignment.
+    If initial_data is provided, it's used to populate the document.
     Returns the document ID if successful, otherwise None.
     """
     try:
         db = firestore.client()
         alumnos_ref = db.collection("alumnos")
 
+        # Default data structure
+        data = {
+            "correo": correo,
+            "nombre": None,
+            "edad": None,
+            "estatus": None,
+            "semestre": None,
+            "promedio": None,
+            "area1": None,
+            "area2": None,
+            "area3": None,
+            "habilidades_tecnicas": None,
+            "habilidades_blandas": None,
+            "idiomas": None,
+            "created_at": firestore.SERVER_TIMESTAMP,
+        }
+
+        # If initial data is provided, merge it
+        if initial_data:
+            data.update(initial_data)
+
+        data["updated_at"] = firestore.SERVER_TIMESTAMP
+
         # Create new document with auto-generated ID
         doc_ref = alumnos_ref.document()
-        doc_ref.set(
-            {
-                "nombre": None,
-                "edad": None,
-                "estatus": None,
-                "semestre": None,
-                "promedio": None,
-                "area1": None,
-                "area2": None,
-                "area3": None,
-                "habilidades_tecnicas": None,
-                "habilidades_blandas": None,
-                "idiomas": None,
-                "created_at": firestore.SERVER_TIMESTAMP,
-                "updated_at": firestore.SERVER_TIMESTAMP,
-            }
-        )
+        doc_ref.set(data)
 
         print(f"New alumno created with correo: {correo}, doc_id: {doc_ref.id}")
         return doc_ref.id

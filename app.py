@@ -208,11 +208,6 @@ def alumnos_perfil():
 
     # POST: actualizar perfil
     if request.method == "POST":
-        doc_id = session.get("alumno_doc_id")
-        if not doc_id:
-            flash("Error: No se encontró el documento del alumno.", "error")
-            return redirect(url_for("alumnos_perfil"))
-
         campos = [
             "nombre",
             "edad",
@@ -242,31 +237,46 @@ def alumnos_perfil():
                     flash(f"El campo {campo} debe ser un número.", "error")
                     return redirect(url_for("alumnos_perfil"))
 
-        if update_data:
+        if not update_data:
+            flash("No se proporcionaron datos nuevos para actualizar.", "info")
+            return redirect(url_for("alumnos_perfil"))
+
+        # Verificar si el alumno ya existe para decidir si crear o actualizar
+        alumno_existente = get_alumno_by_correo(correo_sesion)
+
+        if alumno_existente:
+            # Actualizar perfil existente
+            doc_id = alumno_existente["doc_id"]
             if update_alumno(doc_id, update_data):
                 flash("Perfil actualizado exitosamente.", "success")
             else:
                 flash("Error al actualizar el perfil. Inténtalo de nuevo.", "error")
         else:
-            flash("No se proporcionaron datos nuevos para actualizar.", "info")
-        return redirect(url_for("alumnos_perfil"))
+            # Crear nuevo perfil con los datos del formulario
+            update_data["correo"] = correo_sesion  # Añadir correo al nuevo documento
+            if create_alumno(correo_sesion, update_data):
+                flash("Perfil creado exitosamente.", "success")
+            else:
+                flash("Error al crear el perfil. Inténtalo de nuevo.", "error")
 
-    # GET: mostrar perfil
+        return redirect(url_for("alumnos_dashboard"))
+
+ # GET: mostrar perfil
     alumno_data = get_alumno_by_correo(correo_sesion)
     if alumno_data:
-        session["alumno_doc_id"] = alumno_data["doc_id"]
         is_new_alumno = False
     else:
-        doc_id = create_alumno(correo_sesion)
-        if not doc_id:
-            flash("Error al crear tu registro de alumno.", "error")
-            return redirect(url_for("alumnos_login"))
-        session["alumno_doc_id"] = doc_id
-        alumno_data = get_alumno_by_correo(correo_sesion)
+        # No creamos el perfil aquí, solo preparamos para el formulario
+        alumno_data = {}
         is_new_alumno = True
-        flash("¡Bienvenido! Por favor, completa tu perfil.", "info")
+        flash(
+            "¡Bienvenido! Por favor, completa tu perfil para que las empresas puedan conocerte.",
+            "info",
+        )
 
-    # Preparar datos para plantilla
+    if not alumno_data:
+        alumno_data = {}  # Evita el error de NoneType
+
     alumno_render_data = {
         key: alumno_data.get(key)
         for key in [
@@ -283,6 +293,7 @@ def alumnos_perfil():
             "idiomas",
         ]
     }
+
     alumno_render_data["is_new"] = is_new_alumno
     alumno_render_data["doc_id"] = alumno_data.get("doc_id")
 
