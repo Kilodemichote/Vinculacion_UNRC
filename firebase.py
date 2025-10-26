@@ -2,26 +2,32 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore
 import os
 
+
 def initialize_firebase():
     """
     Initializes the Firebase Admin SDK using a service account.
     """
     try:
         # Get the path to the service account key from environment variables
-        service_account_key_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-        
+        service_account_key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
         if not service_account_key_path:
-            raise ValueError("GOOGLE_APPLICATION_CREDENTIALS environment variable not set.")
-            
+            raise ValueError(
+                "GOOGLE_APPLICATION_CREDENTIALS environment variable not set."
+            )
+
         # Ensure the path is absolute or relative to the project root
         if not os.path.isabs(service_account_key_path):
-            service_account_key_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), service_account_key_path)
-            
+            service_account_key_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), service_account_key_path
+            )
+
         cred = credentials.Certificate(service_account_key_path)
-        firebase_admin.initialize_app(cred) 
-        print("Firebase Admin SDK initialized successfully.") 
+        firebase_admin.initialize_app(cred)
+        print("Firebase Admin SDK initialized successfully.")
     except Exception as e:
         print(f"Error initializing Firebase Admin SDK: {e}")
+
 
 def get_empresa_by_correo(correo):
     """
@@ -30,21 +36,22 @@ def get_empresa_by_correo(correo):
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
 
         # Query by correo field
-        query = empresas_ref.where('correo', '==', correo).limit(1)
+        query = empresas_ref.where("correo", "==", correo).limit(1)
         docs = query.stream()
 
         for doc in docs:
             data = doc.to_dict()
-            data['doc_id'] = doc.id  # Include document ID for updates
+            data["doc_id"] = doc.id  # Include document ID for updates
             return data
 
         return None
     except Exception as e:
         print(f"Error retrieving empresa by correo: {e}")
         return None
+
 
 def create_empresa(correo):
     """
@@ -54,27 +61,30 @@ def create_empresa(correo):
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
 
         # Create new document with auto-generated ID
         doc_ref = empresas_ref.document()
-        doc_ref.set({
-            'correo': correo,
-            'contactoPrincipal': None,
-            'estado': None,
-            'giro': None,
-            'mun_alcaldia': None,
-            'nombre': None,
-            'suscripcionActiva': False,
-            'created_at': firestore.SERVER_TIMESTAMP,
-            'updated_at': firestore.SERVER_TIMESTAMP
-        })
+        doc_ref.set(
+            {
+                "correo": correo,
+                "contactoPrincipal": None,
+                "estado": None,
+                "giro": None,
+                "mun_alcaldia": None,
+                "nombre": None,
+                "suscripcionActiva": False,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+            }
+        )
 
         print(f"New empresa created with correo: {correo}, doc_id: {doc_ref.id}")
         return doc_ref.id
     except Exception as e:
         print(f"Error creating empresa: {e}")
         return None
+
 
 def update_empresa(doc_id, data):
     """
@@ -84,10 +94,10 @@ def update_empresa(doc_id, data):
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
 
         # Add timestamp to the update
-        data['updated_at'] = firestore.SERVER_TIMESTAMP
+        data["updated_at"] = firestore.SERVER_TIMESTAMP
 
         # Update the document
         empresas_ref.document(doc_id).update(data)
@@ -98,6 +108,7 @@ def update_empresa(doc_id, data):
         print(f"Error updating empresa: {e}")
         return False
 
+
 def get_vacantes_by_empresa_id(empresa_doc_id):
     """
     Retrieves all vacantes (job opportunities) for a specific empresa.
@@ -105,26 +116,27 @@ def get_vacantes_by_empresa_id(empresa_doc_id):
     """
     try:
         db = firestore.client()
-        vacantes_ref = db.collection('vacantes')
-        empresas_ref = db.collection('empresas')
+        vacantes_ref = db.collection("vacantes")
+        empresas_ref = db.collection("empresas")
 
         # Create a reference to the empresa document
         empresa_ref = empresas_ref.document(empresa_doc_id)
 
         # Query vacantes where empresaId equals the empresa reference
-        query = vacantes_ref.where('empresaId', '==', empresa_ref)
+        query = vacantes_ref.where("empresaId", "==", empresa_ref)
         docs = query.stream()
 
         vacantes = []
         for doc in docs:
             data = doc.to_dict()
-            data['id'] = doc.id  # Include document ID
+            data["id"] = doc.id  # Include document ID
             vacantes.append(data)
 
         return vacantes
     except Exception as e:
         print(f"Error retrieving vacantes by empresa ID: {e}")
         return []
+
 
 def verify_google_id_token(id_token):
     """
@@ -137,6 +149,7 @@ def verify_google_id_token(id_token):
     except Exception as e:
         print(f"Error verifying ID token: {e}")
         return None
+
 
 def create_vacante(empresa_doc_id, vacante_data):
     """
@@ -151,8 +164,8 @@ def create_vacante(empresa_doc_id, vacante_data):
     """
     try:
         db = firestore.client()
-        vacantes_ref = db.collection('vacantes')
-        empresas_ref = db.collection('empresas')
+        vacantes_ref = db.collection("vacantes")
+        empresas_ref = db.collection("empresas")
 
         # Create a reference to the empresa document
         empresa_ref = empresas_ref.document(empresa_doc_id)
@@ -162,23 +175,23 @@ def create_vacante(empresa_doc_id, vacante_data):
 
         # Prepare the data with empresa reference
         data = {
-            'empresaId': empresa_ref,
-            'titulo': vacante_data.get('titulo', ''),
-            'descripcion': vacante_data.get('descripcion', ''),
-            'requisitos': vacante_data.get('requisitos', ''),
-            'modalidad': vacante_data.get('modalidad', ''),
-            'tipoContrato': vacante_data.get('tipoContrato', ''),
-            'duracion': vacante_data.get('duracion', ''),
-            'horario': vacante_data.get('horario', ''),
-            'sueldo': vacante_data.get('sueldo'),
-            'educación': vacante_data.get('educacion', ''),
-            'experienciaRequerida': vacante_data.get('experienciaRequerida', ''),
-            'habilidadesDuras': vacante_data.get('habilidadesDuras', []),
-            'idiomas': vacante_data.get('idiomas', []),
-            'nombreEmpresa': vacante_data.get('nombreEmpresa', ''),
-            'activa': True,
-            'created_at': firestore.SERVER_TIMESTAMP,
-            'updated_at': firestore.SERVER_TIMESTAMP
+            "empresaId": empresa_ref,
+            "titulo": vacante_data.get("titulo", ""),
+            "descripcion": vacante_data.get("descripcion", ""),
+            "requisitos": vacante_data.get("requisitos", ""),
+            "modalidad": vacante_data.get("modalidad", ""),
+            "tipoContrato": vacante_data.get("tipoContrato", ""),
+            "duracion": vacante_data.get("duracion", ""),
+            "horario": vacante_data.get("horario", ""),
+            "sueldo": vacante_data.get("sueldo"),
+            "educación": vacante_data.get("educacion", ""),
+            "experienciaRequerida": vacante_data.get("experienciaRequerida", ""),
+            "habilidadesDuras": vacante_data.get("habilidadesDuras", []),
+            "idiomas": vacante_data.get("idiomas", []),
+            "nombreEmpresa": vacante_data.get("nombreEmpresa", ""),
+            "activa": True,
+            "created_at": firestore.SERVER_TIMESTAMP,
+            "updated_at": firestore.SERVER_TIMESTAMP,
         }
 
         doc_ref.set(data)
@@ -189,6 +202,7 @@ def create_vacante(empresa_doc_id, vacante_data):
         print(f"Error creating vacante: {e}")
         return None
 
+
 def get_empresa_by_id(empresa_doc_id):
     """
     Retrieves empresa document by document ID.
@@ -196,18 +210,19 @@ def get_empresa_by_id(empresa_doc_id):
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
         doc = empresas_ref.document(empresa_doc_id).get()
 
         if doc.exists:
             data = doc.to_dict()
-            data['doc_id'] = doc.id
+            data["doc_id"] = doc.id
             return data
 
         return None
     except Exception as e:
         print(f"Error retrieving empresa by ID: {e}")
         return None
+
 
 def get_vacante_by_id(vacante_id):
     """
@@ -216,18 +231,19 @@ def get_vacante_by_id(vacante_id):
     """
     try:
         db = firestore.client()
-        vacantes_ref = db.collection('vacantes')
+        vacantes_ref = db.collection("vacantes")
         doc = vacantes_ref.document(vacante_id).get()
 
         if doc.exists:
             data = doc.to_dict()
-            data['id'] = doc.id
+            data["id"] = doc.id
             return data
 
         return None
     except Exception as e:
         print(f"Error retrieving vacante by ID: {e}")
         return None
+
 
 def update_vacante(vacante_id, vacante_data):
     """
@@ -242,15 +258,26 @@ def update_vacante(vacante_id, vacante_data):
     """
     try:
         db = firestore.client()
-        vacantes_ref = db.collection('vacantes')
+        vacantes_ref = db.collection("vacantes")
 
         # Prepare update data (only include fields that are provided)
         update_data = {}
 
         allowed_fields = [
-            'titulo', 'descripcion', 'requisitos', 'modalidad', 'tipoContrato',
-            'duracion', 'horario', 'sueldo', 'educación', 'experienciaRequerida',
-            'habilidadesDuras', 'idiomas', 'nombreEmpresa', 'activa'
+            "titulo",
+            "descripcion",
+            "requisitos",
+            "modalidad",
+            "tipoContrato",
+            "duracion",
+            "horario",
+            "sueldo",
+            "educación",
+            "experienciaRequerida",
+            "habilidadesDuras",
+            "idiomas",
+            "nombreEmpresa",
+            "activa",
         ]
 
         for field in allowed_fields:
@@ -258,7 +285,7 @@ def update_vacante(vacante_id, vacante_data):
                 update_data[field] = vacante_data[field]
 
         # Add updated timestamp
-        update_data['updated_at'] = firestore.SERVER_TIMESTAMP
+        update_data["updated_at"] = firestore.SERVER_TIMESTAMP
 
         # Update the document
         vacantes_ref.document(vacante_id).update(update_data)
@@ -268,6 +295,7 @@ def update_vacante(vacante_id, vacante_data):
     except Exception as e:
         print(f"Error updating vacante: {e}")
         return False
+
 
 def delete_vacante(vacante_id):
     """
@@ -281,7 +309,7 @@ def delete_vacante(vacante_id):
     """
     try:
         db = firestore.client()
-        vacantes_ref = db.collection('vacantes')
+        vacantes_ref = db.collection("vacantes")
 
         vacantes_ref.document(vacante_id).delete()
 
@@ -290,6 +318,7 @@ def delete_vacante(vacante_id):
     except Exception as e:
         print(f"Error deleting vacante: {e}")
         return False
+
 
 def verify_vacante_belongs_to_empresa(vacante_id, empresa_doc_id):
     """
@@ -309,7 +338,7 @@ def verify_vacante_belongs_to_empresa(vacante_id, empresa_doc_id):
             return False
 
         # Get the empresa reference from the vacante
-        empresa_ref = vacante.get('empresaId')
+        empresa_ref = vacante.get("empresaId")
 
         if not empresa_ref:
             return False
@@ -320,6 +349,7 @@ def verify_vacante_belongs_to_empresa(vacante_id, empresa_doc_id):
         print(f"Error verifying vacante ownership: {e}")
         return False
 
+
 def get_all_empresas():
     """
     Retrieves all empresa documents from the empresas collection.
@@ -327,19 +357,20 @@ def get_all_empresas():
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
         docs = empresas_ref.stream()
 
         empresas = []
         for doc in docs:
             data = doc.to_dict()
-            data['doc_id'] = doc.id  # Include document ID
+            data["doc_id"] = doc.id  # Include document ID
             empresas.append(data)
 
         return empresas
     except Exception as e:
         print(f"Error retrieving all empresas: {e}")
         return []
+
 
 def update_empresa_subscription(doc_id, suscripcion_activa):
     """
@@ -354,13 +385,15 @@ def update_empresa_subscription(doc_id, suscripcion_activa):
     """
     try:
         db = firestore.client()
-        empresas_ref = db.collection('empresas')
+        empresas_ref = db.collection("empresas")
 
         # Update only the suscripcionActiva field
-        empresas_ref.document(doc_id).update({
-            'suscripcionActiva': suscripcion_activa,
-            'updated_at': firestore.SERVER_TIMESTAMP
-        })
+        empresas_ref.document(doc_id).update(
+            {
+                "suscripcionActiva": suscripcion_activa,
+                "updated_at": firestore.SERVER_TIMESTAMP,
+            }
+        )
 
         print(f"Empresa {doc_id} subscription updated to {suscripcion_activa}")
         return True
