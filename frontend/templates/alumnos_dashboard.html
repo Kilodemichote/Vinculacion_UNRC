@@ -48,10 +48,58 @@
                     <p>Has iniciado sesión exitosamente en el sistema.</p>
                     <div class="user-info">
                         <p><strong>Email:</strong> {{ session.user_email }}</p>
-                        <p><strong>ID de Usuario:</strong> {{ session.user_id }}</p>
-                        <p><strong>Rol:</strong> {{ session.user_role }}</p>
                     </div>
                 </div>
+
+                <!-- Nuevo Contenedor de Perfil de Alumno -->
+                <div class="profile-summary-card">
+                    <h2>Mi Perfil</h2>
+                    {% if alumno and alumno.nombre %}
+                    <p>Un resumen de tu información actual. Puedes editarla en la sección de <strong>Perfil</strong>.
+                    </p>
+                    <div class="profile-details-grid">
+                        <div class="detail-item">
+                            <strong>Nombre:</strong>
+                            <span>{{ alumno.nombre or 'No especificado' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Estatus:</strong>
+                            <span>{{ alumno.estatus or 'No especificado' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Semestre:</strong>
+                            <span>{{ alumno.semestre or 'No especificado' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Promedio:</strong>
+                            <span>{{ alumno.promedio or 'No especificado' }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <strong>Áreas de Interés:</strong>
+                            <span>{{ [alumno.area1, alumno.area2, alumno.area3] | select('ne', none) | join(', ') or 'No
+                                especificadas' }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <strong>Idiomas:</strong>
+                            <span>{{ [alumno.idiomas] | select('ne', none) | join(', ') or 'No especificadas' }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <strong>Habilidades Técnicas:</strong>
+                            <span>{{ [alumno.habilidades_tecnicas] | select('ne', none) | join(', ') or 'No especificadas' }}</span>
+                        </div>
+                        <div class="detail-item full-width">
+                            <strong>Habilidades Blandas:</strong>
+                            <span>{{ [alumno.habilidades_blandas] | select('ne', none) | join(', ') or 'No especificadas' }}</span>
+                        </div>
+                    </div>
+     
+                    {% else %}
+                    <p>Aún no has completado tu perfil.</p>
+                    <p>¡Completa tu información para que las empresas puedan conocerte mejor!</p>
+                    <a href="{{ url_for('alumnos_perfil') }}" class="btn-completar-perfil">Completar Perfil Ahora</a>
+                    {% endif %}
+                </div>
+
 
                 <div class="features-grid">
                     <div class="feature-card">
@@ -74,18 +122,18 @@
                         <p>Accede a tus documentos académicos</p>
                     </div>
                     <a href='/alumnos/perfil' class="card-link">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 21V19a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
-                    
-                            </svg>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 21V19a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+
+                                </svg>
+                            </div>
+                            <h3>Perfil</h3>
+                            <p>Gestiona tu información personal</p>
                         </div>
-                        <h3>Perfil</h3>
-                        <p>Gestiona tu información personal</p>
-                    </div>
                     </a>
                     <div class="feature-card">
                         <div class="feature-icon">

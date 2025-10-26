@@ -177,7 +177,19 @@ def alumnos_forgot_password():
 
 @app.route("/alumnos/dashboard")
 def alumnos_dashboard():
-    return render_template("alumnos_dashboard.html")
+    # 1. Proteger la ruta para que solo accedan alumnos
+    if "user_role" not in session or session.get("user_role") != "alumno":
+        flash("Acceso denegado. Por favor, inicia sesión como alumno.", "error")
+        return redirect(url_for("alumnos_login"))
+
+    # 2. Obtener el correo de la sesión
+    correo_sesion = session.get("user_email")
+
+    # 3. Buscar los datos del alumno en Firestore
+    alumno_data = get_alumno_by_correo(correo_sesion)
+
+    # 4. Renderizar la plantilla pasando los datos del alumno
+    return render_template("alumnos_dashboard.html", alumno=alumno_data)
 
 
 @app.route("/logout")

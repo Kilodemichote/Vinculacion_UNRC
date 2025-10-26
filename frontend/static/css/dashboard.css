@@ -437,3 +437,79 @@ body {
   text-decoration: none;  /* Quita el subrayado */
   color: inherit;         /* Hace que el texto herede el color de su padre (en lugar de ser azul) */
 }
+
+/* Estilos para la tarjeta de resumen de perfil del alumno */
+.profile-summary-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 25px var(--shadow);
+    margin-bottom: 3rem;
+}
+
+.profile-summary-card h2 {
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.profile-summary-card > p {
+    color: var(--secondary-gray);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.detail-item {
+    background: rgba(35, 91, 78, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-item strong {
+    color: var(--primary-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.detail-item span {
+    font-size: 1rem;
+    color: var(--secondary-dark-green);
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.btn-completar-perfil {
+    display: inline-block;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, var(--primary-orange), #aaa9a7);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-completar-perfil:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(188, 149, 92, 0.3);
+}
+
+@media (max-width: 768px) {
+    .profile-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
