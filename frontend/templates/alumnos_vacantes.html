@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vacantes Disponibles</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
   <style>
     :root {
       --primary-green: #235B4E;
@@ -29,14 +30,6 @@
       margin: 2rem auto;
       border: 1px solid rgba(35, 91, 78, 0.1);
       transition: max-width 0.3s ease;
-    }
-
-    h2 {
-      text-align: center;
-      color: var(--primary-green);
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 2rem;
     }
 
     /* Tarjetas de vacantes */
@@ -275,8 +268,22 @@
 </head>
 <body>
 
+  <!-- Nuevo encabezado con botón de regreso -->
+  <header class="dashboard-header">
+    <div class="header-content">
+        <h1>Vacantes Disponibles</h1>
+        <nav class="header-nav">
+            <a href="/alumnos/dashboard" class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Regresar al inicio
+            </a>
+        </nav>
+    </div>
+  </header>
+
   <div class="form-container">
-    <h2>Vacantes Disponibles</h2>
     <div id="vacantes" class="vacantes-container">
       <p>Cargando vacantes...</p>
     </div>
@@ -360,7 +367,7 @@
           todasLasVacantes[doc.id] = v; // Guardar datos completos
           const card = document.createElement("div");
           card.classList.add("vacante-card");
-          // ✨ Nueva estructura de la tarjeta con iconos y mejor layout
+          // Nueva estructura de la tarjeta con iconos y mejor layout
           card.innerHTML = `
             <h3>${v.titulo || "Título no disponible"}</h3>
             <p class="empresa-nombre">${v.nombreEmpresa || "Empresa no especificada"}</p>
@@ -443,7 +450,7 @@
       document.getElementById("vacanteId").value = id;
       document.getElementById("modalPostular").style.display = "flex";
 
-      // ✨ Pre-rellenar el formulario si el alumno está logueado
+      // Pre-rellenar el formulario si el alumno está logueado
       {% if alumno and alumno.nombre %}
         document.getElementById("nombreAlumno").value = "{{ alumno.nombre }}";
         document.getElementById("correoAlumno").value = "{{ alumno.correo }}";
@@ -486,7 +493,7 @@
           fecha: new Date()
         });
 
-        alert("✅ Tu postulación se ha enviado correctamente.");
+        alert(" Tu postulación se ha enviado correctamente.");
         cerrarModal();
         form.reset();
       } catch (error) {
