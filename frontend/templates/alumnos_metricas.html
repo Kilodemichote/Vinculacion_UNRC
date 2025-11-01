@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tus Métricas</title>
+  
+  <!-- Estilos del Dashboard para consistencia -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: #eef3f1;
+    }
+
+    .metrics-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 25px var(--shadow);
+      border: 1px solid rgba(35, 91, 78, 0.1);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .chart-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(35, 91, 78, 0.15);
+    }
+
+    .chart-card h3 {
+      color: var(--primary-green);
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: 300px !important;
+    }
+
+    @media (max-width: 480px) {
+      .metrics-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Encabezado consistente con el resto del portal -->
+  <header class="dashboard-header">
+    <div class="header-content">
+        <h1>Tus Métricas</h1>
+        <nav class="header-nav">
+            <a href="/alumnos/dashboard" class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Regresar al Dashboard
+            </a>
+        </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <div class="dashboard-content">
+      <div class="metrics-container">
+        <!-- Postulaciones por Mes -->
+        <div class="chart-card">
+          <h3>Postulaciones por Mes</h3>
+          <canvas id="aplicacionesMes"></canvas>
+        </div>
+
+        <!-- Tipos de Vacantes Postuladas -->
+        <div class="chart-card">
+          <h3>Tipos de Vacantes Postuladas</h3>
+          <canvas id="tiposVacantes"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    //  Gráfica de barras: Postulaciones por mes
+    new Chart(document.getElementById("aplicacionesMes"), {
+      type: "bar",
+      data: {
+        labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+        datasets: [{
+          label: "Postulaciones",
+          data: [5, 8, 3, 10, 6, 9],
+          backgroundColor: "rgba(0, 146, 104, 0.7)",
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Gráfica de pastel: Tipos de vacantes postuladas
+    new Chart(document.getElementById("tiposVacantes"), {
+      type: "pie",
+      data: {
+        labels: ["Tiempo completo", "Medio tiempo", "Prácticas"],
+        datasets: [{
+          data: [50, 30, 20],
+          backgroundColor: ["#235B4E", "#009268", "#BC955C"]
+        }]
+      },
+      options: {
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -332,6 +332,15 @@ def alumnos_postular():
     
     return jsonify({"success": True, "msg": "Postulación recibida correctamente."})
 
+@app.route("/alumnos/metricas")
+def alumnos_metricas():
+    """
+    Muestra el panel de métricas del alumno con sus visualizaciones de perfil,
+    aplicaciones y habilidades.
+    """
+    return render_template("alumnos_metricas.html")
+
+
 
 # Empieza la seccion de empresas
 @app.route("/empresas")
