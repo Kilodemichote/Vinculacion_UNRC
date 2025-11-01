@@ -14,7 +14,8 @@
 
     body {
       font-family: "Poppins", sans-serif;
-      background-color: #f5f7f6;
+      background-color: #eef3f1;
+      color: #333;
       margin: 0;
       padding: 0;
     }
@@ -51,8 +52,44 @@
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 5px 15px var(--shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
+
+    /* Nuevos estilos para la meta-información */
+    .vacante-meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin: 1rem 0;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .meta-item svg {
+      width: 18px;
+      height: 18px;
+      color: var(--secondary-teal);
+      flex-shrink: 0;
+    }
+
+    .meta-item span {
+      color: #555;
+    }
+
+    .vacante-descripcion {
+      font-size: 0.95rem;
+      color: #444;
+      line-height: 1.6;
+      margin-top: 1rem;
+    }
+
 
     .vacante-card:hover {
       transform: translateY(-3px);
@@ -61,7 +98,24 @@
 
     .vacante-card h3 {
       color: var(--primary-green);
+      font-size: 1.25rem;
+      margin-top: 0;
+      margin-bottom: 0.25rem;
+    }
+
+    .vacante-card .empresa-nombre {
       margin-bottom: 0.5rem;
+    }
+
+    .vacante-card .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+
+    .vacante-card .ver-mas-btn {
+      background: var(--secondary-teal);
+      color: var(--white);
     }
 
     .vacante-card p {
@@ -72,7 +126,6 @@
 
     .vacante-card .postular-btn {
       display: inline-block;
-      margin-top: 1rem;
       background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
       color: var(--white);
       padding: 0.6rem 1.2rem;
@@ -100,6 +153,59 @@
       background-color: rgba(0, 0, 0, 0.4);
       justify-content: center;
       align-items: center;
+    }
+    
+    /* Estilos para el nuevo modal de detalles */
+    #modalDetalles .modal-content {
+      max-width: 700px;
+    }
+
+    #modalDetalles h3 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #modalDetalles .empresa-nombre {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .detalle-seccion {
+      margin-bottom: 1.2rem;
+    }
+
+    .detalle-seccion h4 {
+      color: var(--primary-green);
+      border-bottom: 2px solid var(--secondary-teal);
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .detalle-seccion p, .detalle-seccion ul {
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .habilidades-lista {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .habilidad-tag {
+      background-color: #eef3f1;
+      color: var(--primary-green);
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.85rem;
+    }
+
+    .modal-actions {
+      text-align: right;
     }
 
     .modal-content {
@@ -172,25 +278,53 @@
   <div class="form-container">
     <h2>Vacantes Disponibles</h2>
     <div id="vacantes" class="vacantes-container">
-      <!-- Vacantes cargadas dinámicamente -->
+      <p>Cargando vacantes...</p>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles de la vacante -->
+  <div id="modalDetalles" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <button class="close-btn" aria-label="Cerrar" onclick="cerrarModalDetalles()">×</button>
+      <div id="detallesVacante">
+        <!-- El contenido se llenará con JS -->
+        <h3 id="detalle-titulo"></h3>
+        <p id="detalle-empresa" class="empresa-nombre"></p>
+
+        <div class="detalle-seccion">
+          <h4>Descripción del Puesto</h4>
+          <p id="detalle-descripcion"></p>
+        </div>
+
+        <div class="detalle-seccion">
+          <h4>Requisitos</h4>
+          <p id="detalle-requisitos"></p>
+        </div>
+
+        <div class="detalle-seccion">
+          <h4>Habilidades e Idiomas</h4>
+          <ul id="detalle-habilidades" class="habilidades-lista"></ul>
+        </div>
+      </div>
+      <div class="modal-actions"></div>
     </div>
   </div>
 
   <!-- Modal para postular -->
-  <div id="modalPostular" class="modal">
+  <div id="modalPostular" class="modal" role="dialog" aria-modal="true">
     <div class="modal-content">
-      <button class="close-btn" onclick="cerrarModal()">×</button>
+      <button class="close-btn" aria-label="Cerrar" onclick="cerrarModal()">×</button>
       <h3>Postularme a la Vacante</h3>
       <form id="formPostulacion">
         <input type="hidden" id="vacanteId" />
         <label>Nombre completo:</label>
-        <input type="text" id="nombreAlumno" required />
+        <input type="text" id="nombreAlumno" required placeholder="Tu nombre completo" />
 
         <label>Correo electrónico:</label>
-        <input type="email" id="correoAlumno" required />
+        <input type="email" id="correoAlumno" required placeholder="tu@correo.com" />
 
         <label>Mensaje o carta de presentación:</label>
-        <textarea id="mensajeAlumno" rows="4" required></textarea>
+        <textarea id="mensajeAlumno" rows="4" required placeholder="Escribe un breve mensaje..."></textarea>
 
         <button type="submit">Enviar Postulación</button>
       </form>
@@ -198,19 +332,19 @@
   </div>
 
   <script type="module">
-    // Configuración Firebase
+    // Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    // 1. Inicializa Firebase con la configuración del backend
+    // Inicializa Firebase con la configuración del backend
     const firebaseConfig = {{ firebase_config|tojson }};
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const vacantesContainer = document.getElementById("vacantes");
+    let todasLasVacantes = {}; // Objeto para guardar los datos de todas las vacantes
 
     // Cargar vacantes desde Firestore
-    // 2. Función para obtener y mostrar las vacantes
     async function cargarVacantes() {
       try {
         const querySnapshot = await getDocs(collection(db, "vacantes"));
@@ -223,25 +357,38 @@
 
         querySnapshot.forEach((doc) => {
           const v = doc.data();
+          todasLasVacantes[doc.id] = v; // Guardar datos completos
           const card = document.createElement("div");
           card.classList.add("vacante-card");
-          // 3. Usar los nombres de campo correctos y valores por defecto
+          // ✨ Nueva estructura de la tarjeta con iconos y mejor layout
           card.innerHTML = `
             <h3>${v.titulo || "Título no disponible"}</h3>
-            <p><strong>Empresa:</strong> ${v.nombreEmpresa || "No especificado"}</p>
-            <p><strong>Descripción:</strong> ${v.descripcion || "No especificada"}</p>
-            <p><strong>Requisitos:</strong> ${v.requisitos || "No especificados"}</p>
-            <p><strong>Tipo de contrato:</strong> ${v.tipoContrato || "No especificado"}</p>
-            <p><strong>Modalidad:</strong> ${v.modalidad || "No especificada"}</p>
-            <p><strong>Experiencia:</strong> ${v.experienciaRequerida || "No especificada"}</p>
-            <p><strong>Habilidades Duras:</strong> ${(v.habilidadesDuras || []).join(", ") || "No especificadas"}</p>
-            <p><strong>Idiomas:</strong> ${(v.idiomas || []).join(", ") || "No especificados"}</p>
-            <p><strong>Nivel educativo:</strong> ${v.educación || "No especificado"}</p>
-            <p><strong>Horario:</strong> ${v.horario || "No especificado"}</p>
-            <p><strong>Sueldo:</strong> ${v.sueldo ? `$${v.sueldo.toLocaleString("es-MX")}` : "No especificado"}</p>
-            <p><strong>Duración:</strong> ${v.duracion || "No especificada"}</p>
+            <p class="empresa-nombre">${v.nombreEmpresa || "Empresa no especificada"}</p>
 
-            <button class="postular-btn" onclick="abrirModal('${doc.id}')">Postularme</button>
+            <div class="vacante-meta">
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>${v.modalidad || "No especificada"}</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <span>${v.tipoContrato || "No especificado"}</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>${v.horario || "No especificado"}</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span>${v.sueldo ? `$${v.sueldo.toLocaleString("es-MX")}` : "No especificado"}</span>
+              </div>
+            </div>
+
+            <p class="vacante-descripcion">${(v.descripcion || "Sin descripción.").substring(0, 120)}...</p>
+
+            <div class="card-actions">
+              <button class="postular-btn ver-mas-btn" onclick="abrirModalDetalles('${doc.id}')">Ver más</button>
+            </div>
           `;
           vacantesContainer.appendChild(card);
         });
@@ -251,15 +398,69 @@
       }
     }
 
-    // Modal funciones
+    // --- Funciones para el Modal de Detalles ---
+    window.abrirModalDetalles = function(id) {
+      const v = todasLasVacantes[id];
+      if (!v) return;
+
+      // Llenar el modal con los datos
+      document.getElementById('detalle-titulo').textContent = v.titulo || 'N/A';
+      document.getElementById('detalle-empresa').textContent = v.nombreEmpresa || 'N/A';
+      document.getElementById('detalle-descripcion').textContent = v.descripcion || 'No especificada.';
+      document.getElementById('detalle-requisitos').textContent = v.requisitos || 'No especificados.';
+
+      // Llenar habilidades
+      const habilidadesContainer = document.getElementById('detalle-habilidades');
+      habilidadesContainer.innerHTML = '';
+      (v.habilidadesDuras || []).forEach(h => {
+        habilidadesContainer.innerHTML += `<li class="habilidad-tag">${h}</li>`;
+      });
+      (v.habilidadesBlandas || []).forEach(h => {
+        habilidadesContainer.innerHTML += `<li class="habilidad-tag">${h}</li>`;
+      });
+      (v.idiomas || []).forEach(i => {
+        habilidadesContainer.innerHTML += `<li class="habilidad-tag">${i}</li>`;
+      });
+
+      // Añadir botón de postularse
+      const modalActions = document.querySelector('#modalDetalles .modal-actions');
+      modalActions.innerHTML = `<button class="postular-btn" onclick="abrirModal('${id}')">Postularme</button>`;
+
+      document.getElementById("modalDetalles").style.display = "flex";
+    };
+
+    window.cerrarModalDetalles = function() {
+      document.getElementById("modalDetalles").style.display = "none";
+    };
+
+    // Cerrar modal de detalles al hacer clic fuera
+    document.getElementById("modalDetalles").onclick = function(e) {
+      if (e.target === this) cerrarModalDetalles();
+    };
+
+    // --- Funciones para el Modal de Postulación ---
     window.abrirModal = function(id) {
       document.getElementById("vacanteId").value = id;
       document.getElementById("modalPostular").style.display = "flex";
+
+      // ✨ Pre-rellenar el formulario si el alumno está logueado
+      {% if alumno and alumno.nombre %}
+        document.getElementById("nombreAlumno").value = "{{ alumno.nombre }}";
+        document.getElementById("correoAlumno").value = "{{ alumno.correo }}";
+        // Opcional: Hacer los campos de solo lectura si ya están rellenos
+        document.getElementById("nombreAlumno").readOnly = true;
+        document.getElementById("correoAlumno").readOnly = true;
+      {% endif %}
     };
 
     window.cerrarModal = function() {
       document.getElementById("modalPostular").style.display = "none";
     };
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById("modalPostular").onclick = function(e) {
+        if (e.target === this) cerrarModal();
+    }
 
     // Enviar postulación
     const form = document.getElementById("formPostulacion");
@@ -267,21 +468,31 @@
       e.preventDefault();
 
       const vacanteId = document.getElementById("vacanteId").value;
-      const nombre = document.getElementById("nombreAlumno").value;
-      const correo = document.getElementById("correoAlumno").value;
-      const mensaje = document.getElementById("mensajeAlumno").value;
+      const nombre = document.getElementById("nombreAlumno").value.trim();
+      const correo = document.getElementById("correoAlumno").value.trim();
+      const mensaje = document.getElementById("mensajeAlumno").value.trim();
 
-      await addDoc(collection(db, "postulaciones"), {
-        vacanteId,
-        nombre,
-        correo,
-        mensaje,
-        fecha: new Date()
-      });
+      if (!nombre || !correo.includes("@") || !mensaje) {
+        alert("Por favor completa todos los campos correctamente.");
+        return;
+      }
 
-      alert("Tu postulación se ha enviado correctamente.");
-      cerrarModal();
-      form.reset();
+      try {
+        await addDoc(collection(db, "postulaciones"), {
+          vacanteId,
+          nombre,
+          correo,
+          mensaje,
+          fecha: new Date()
+        });
+
+        alert("✅ Tu postulación se ha enviado correctamente.");
+        cerrarModal();
+        form.reset();
+      } catch (error) {
+        alert("❌ Error al enviar la postulación. Intenta nuevamente.");
+        console.error(error);
+      }
     });
 
     cargarVacantes();

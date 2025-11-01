@@ -310,7 +310,12 @@ def alumnos_vacantes():
         "appId": os.getenv("FIREBASE_APP_ID"),
         "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID"),
     }
-    return render_template('alumnos_vacantes.html', firebase_config=firebase_config)
+    # Obtener datos del alumno si ha iniciado sesión
+    alumno_logueado = None
+    if session.get('user_role') == 'alumno' and 'user_email' in session:
+        alumno_logueado = get_alumno_by_correo(session['user_email'])
+
+    return render_template('alumnos_vacantes.html', firebase_config=firebase_config, alumno=alumno_logueado)
 
 # 🔹 (Opcional) Ruta para recibir postulaciones desde el formulario
 @app.route('/alumnos/postular', methods=['POST'])
