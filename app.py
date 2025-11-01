@@ -298,6 +298,33 @@ def alumnos_perfil():
     alumno_render_data["doc_id"] = alumno_data.get("doc_id")
 
     return render_template("alumnos_perfil.html", alumno=alumno_render_data)
+@app.route('/alumnos/vacantes')
+def alumnos_vacantes():
+    # Prepara la configuración de Firebase para el lado del cliente
+    firebase_config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID"),
+    }
+    return render_template('alumnos_vacantes.html', firebase_config=firebase_config)
+
+# 🔹 (Opcional) Ruta para recibir postulaciones desde el formulario
+@app.route('/alumnos/postular', methods=['POST'])
+def alumnos_postular():
+    data = request.get_json()
+    nombre = data.get('nombre')
+    correo = data.get('correo')
+    mensaje = data.get('mensaje')
+    vacante_id = data.get('vacanteId')
+
+    # Aquí podrías conectar con Firebase o guardar en tu base de datos
+    print(f"Postulación recibida: {nombre} ({correo}) a la vacante {vacante_id}")
+    
+    return jsonify({"success": True, "msg": "Postulación recibida correctamente."})
 
 
 # Empieza la seccion de empresas
