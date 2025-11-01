@@ -317,6 +317,7 @@ def alumnos_vacantes():
 
     return render_template('alumnos_vacantes.html', firebase_config=firebase_config, alumno=alumno_logueado)
 
+
 # 🔹 (Opcional) Ruta para recibir postulaciones desde el formulario
 @app.route('/alumnos/postular', methods=['POST'])
 def alumnos_postular():

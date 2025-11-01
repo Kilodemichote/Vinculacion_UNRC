@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -117,8 +118,9 @@
       font-size: 0.95rem;
     }
 
-    .vacante-card .postular-btn {
+    .postular-btn {
       display: inline-block;
+      text-decoration: none;
       background: linear-gradient(135deg, var(--primary-green), var(--secondary-teal));
       color: var(--white);
       padding: 0.6rem 1.2rem;
@@ -129,7 +131,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .vacante-card .postular-btn:hover {
+    .postular-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(35, 91, 78, 0.3);
     }
@@ -147,7 +149,7 @@
       justify-content: center;
       align-items: center;
     }
-    
+
     /* Estilos para el nuevo modal de detalles */
     #modalDetalles .modal-content {
       max-width: 700px;
@@ -176,7 +178,8 @@
       margin-bottom: 0.5rem;
     }
 
-    .detalle-seccion p, .detalle-seccion ul {
+    .detalle-seccion p,
+    .detalle-seccion ul {
       line-height: 1.6;
       margin: 0;
     }
@@ -264,22 +267,48 @@
         padding: 2rem;
       }
     }
+
+    /* ✨ Estilos para la notificación Toast */
+    .toast-notification {
+      position: fixed;
+      top: 80px; /* Debajo del header */
+      right: 20px;
+      background-color: var(--primary-red);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+      z-index: 1050;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(100%);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .toast-notification.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- Nuevo encabezado con botón de regreso -->
+  <!-- Contenedor para la notificación -->
+  <div id="toast-container"></div>
   <header class="dashboard-header">
     <div class="header-content">
-        <h1>Vacantes Disponibles</h1>
-        <nav class="header-nav">
-            <a href="/alumnos/dashboard" class="logout-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                </svg>
-                Regresar al inicio
-            </a>
-        </nav>
+      <h1>Vacantes Disponibles</h1>
+      <nav class="header-nav">
+        <a href="/alumnos/dashboard" class="logout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+          </svg>
+          Regresar al inicio
+        </a>
+      </nav>
     </div>
   </header>
 
@@ -344,11 +373,12 @@
     import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     // Inicializa Firebase con la configuración del backend
-    const firebaseConfig = {{ firebase_config|tojson }};
+    const firebaseConfig = {{ firebase_config| tojson }};
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const vacantesContainer = document.getElementById("vacantes");
+    const toastContainer = document.getElementById("toast-container");
     let todasLasVacantes = {}; // Objeto para guardar los datos de todas las vacantes
 
     // Cargar vacantes desde Firestore
@@ -406,7 +436,7 @@
     }
 
     // --- Funciones para el Modal de Detalles ---
-    window.abrirModalDetalles = function(id) {
+    window.abrirModalDetalles = function (id) {
       const v = todasLasVacantes[id];
       if (!v) return;
 
@@ -431,42 +461,77 @@
 
       // Añadir botón de postularse
       const modalActions = document.querySelector('#modalDetalles .modal-actions');
-      modalActions.innerHTML = `<button class="postular-btn" onclick="abrirModal('${id}')">Postularme</button>`;
+      {% if alumno and alumno.nombre %}
+        // Si el perfil está completo, muestra el botón para postularse
+        modalActions.innerHTML = `<button class="postular-btn" onclick="intentarPostular('${id}')">Postularme</button>`;
+      {% else %}
+        // Si el perfil está incompleto, muestra un botón para ir a completarlo
+        modalActions.innerHTML = `<a href="{{ url_for('alumnos_perfil') }}" class="postular-btn">Completar Perfil</a>`;
+      {% endif %}
 
       document.getElementById("modalDetalles").style.display = "flex";
     };
 
-    window.cerrarModalDetalles = function() {
+    window.cerrarModalDetalles = function () {
       document.getElementById("modalDetalles").style.display = "none";
     };
 
     // Cerrar modal de detalles al hacer clic fuera
-    document.getElementById("modalDetalles").onclick = function(e) {
+    document.getElementById("modalDetalles").onclick = function (e) {
       if (e.target === this) cerrarModalDetalles();
     };
 
     // --- Funciones para el Modal de Postulación ---
-    window.abrirModal = function(id) {
+
+    // Función para mostrar notificaciones Toast
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.className = "toast-notification";
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+
+      // Mostrar el toast
+      setTimeout(() => {
+        toast.classList.add("show");
+      }, 100);
+
+      // Ocultar y eliminar el toast después de 4 segundos
+      setTimeout(() => {
+        toast.classList.remove("show");
+        toast.addEventListener('transitionend', () => toast.remove());
+      }, 4000);
+    }
+    // Nueva función para validar el perfil antes de postular
+    window.intentarPostular = function(id) {
+      {% if alumno and alumno.nombre %}
+        // Si el perfil está completo, abre el modal de postulación
+        abrirModal(id);
+      {% else %}
+        // Si el perfil está incompleto, muestra una notificación toast
+        showToast("Completa tu perfil para poder postularte.");
+      {% endif %}
+    };
+    window.abrirModal = function (id) {
       document.getElementById("vacanteId").value = id;
       document.getElementById("modalPostular").style.display = "flex";
 
       // Pre-rellenar el formulario si el alumno está logueado
       {% if alumno and alumno.nombre %}
-        document.getElementById("nombreAlumno").value = "{{ alumno.nombre }}";
-        document.getElementById("correoAlumno").value = "{{ alumno.correo }}";
-        // Opcional: Hacer los campos de solo lectura si ya están rellenos
-        document.getElementById("nombreAlumno").readOnly = true;
-        document.getElementById("correoAlumno").readOnly = true;
+      document.getElementById("nombreAlumno").value = "{{ alumno.nombre }}";
+      document.getElementById("correoAlumno").value = "{{ alumno.correo }}";
+      // Opcional: Hacer los campos de solo lectura si ya están rellenos
+      document.getElementById("nombreAlumno").readOnly = true;
+      document.getElementById("correoAlumno").readOnly = true;
       {% endif %}
     };
 
-    window.cerrarModal = function() {
+    window.cerrarModal = function () {
       document.getElementById("modalPostular").style.display = "none";
     };
 
     // Cerrar modal al hacer clic fuera
-    document.getElementById("modalPostular").onclick = function(e) {
-        if (e.target === this) cerrarModal();
+    document.getElementById("modalPostular").onclick = function (e) {
+      if (e.target === this) cerrarModal();
     }
 
     // Enviar postulación
@@ -497,7 +562,7 @@
         cerrarModal();
         form.reset();
       } catch (error) {
-        alert("❌ Error al enviar la postulación. Intenta nuevamente.");
+        alert(" Error al enviar la postulación. Intenta nuevamente.");
         console.error(error);
       }
     });
@@ -505,4 +570,5 @@
     cargarVacantes();
   </script>
 </body>
+
 </html>
